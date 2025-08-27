@@ -119,6 +119,7 @@ The platform consists of interconnected MCP servers that compose to create compr
 - Living architecture documentation from provenance data
 - Decision record generation with full historical context
 - Onboarding materials created from actual development history
+- Documentation divergence detection between manual and observed development patterns
 - Compliance and audit report generation
 
 **Review Assistant Server**
