@@ -1,0 +1,35 @@
+name: Bug Report
+description: Report an issue with existing functionality
+title: "[BUG] "
+labels: [bug, needs-triage]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Clear description of the issue
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Run claude-code command...
+        2. Observe behavior...
+        3. Expected vs actual outcome...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: System information
+      placeholder: |
+        - OS: 
+        - Rust version:
+        - Claude Code version:
+        - MCP servers running:

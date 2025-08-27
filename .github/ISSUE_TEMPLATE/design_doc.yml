@@ -1,0 +1,30 @@
+name: Design Document Request
+description: Request for new design documentation
+title: "[DESIGN] "
+labels: [documentation, design]
+body:
+  - type: input
+    id: component
+    attributes:
+      label: Component or Feature
+      description: What needs design documentation?
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: Document Type
+      options:
+        - Core Architecture
+        - MCP Server Specification
+        - Feature Specification
+        - Implementation Guide
+    validations:
+      required: true
+      
+  - type: textarea
+    id: scope
+    attributes:
+      label: Design Scope
+      description: What aspects need to be documented?

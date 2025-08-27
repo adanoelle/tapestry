@@ -1,0 +1,42 @@
+name: Feature Request
+description: Propose new MCP server or platform capability
+title: "[FEATURE] "
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Design Doc Requirement
+        All new features require a design document following our [design documentation guide](docs/design/meta/design-documentation-guide.md).
+        
+  - type: input
+    id: component
+    attributes:
+      label: Component/MCP Server
+      description: Which part of the platform does this affect?
+      placeholder: "e.g., AI Interaction Logger, Decision Graph, New MCP Server"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What development provenance need does this address?
+      placeholder: Describe the gap in current provenance tracking capabilities...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: High-level approach to solving this problem
+      placeholder: Describe your proposed technical approach...
+      
+  - type: textarea
+    id: research
+    attributes:
+      label: Research Implications
+      description: How does this contribute to our understanding of development provenance?
+      placeholder: What insights might this provide about AI-assisted development?

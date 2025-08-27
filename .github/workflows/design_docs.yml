@@ -1,0 +1,65 @@
+name: Design Documentation Workflow
+
+on:
+  pull_request:
+    paths: ['docs/design/**']
+
+jobs:
+  validate-design-docs:
+    name: Validate Design Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check design doc headers
+        run: |
+          echo "Validating design document structure..."
+          
+          # Check that all design docs (except README) have required headers
+          MISSING_HEADERS=""
+          
+          for file in $(find docs/design -name "*.md" ! -name "README.md"); do
+            echo "Checking $file..."
+            
+            if ! grep -q "^**Status:**" "$file"; then
+              MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Status header"
+            fi
+            
+            if ! grep -q "^**Last Updated:**" "$file"; then
+              MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Last Updated header"
+            fi
+          done
+          
+          if [ ! -z "$MISSING_HEADERS" ]; then
+            echo -e "Design document validation failed:$MISSING_HEADERS"
+            exit 1
+          fi
+          
+          echo "All design documents have required headers ✅"
+          
+      - name: Validate design index consistency
+        run: |
+          echo "Checking if design index includes all documents..."
+          
+          # Get all design docs except README
+          find docs/design -name "*.md" ! -name "README.md" | sort > actual_docs.txt
+          
+          # Extract links from README
+          grep -o 'docs/design[^)]*\.md' docs/design/README.md | sort > indexed_docs.txt || true
+          
+          # Compare (allowing for some flexibility in organization)
+          echo "Design documents found:"
+          cat actual_docs.txt
+          echo ""
+          echo "Design documents indexed:"
+          cat indexed_docs.txt
+          echo ""
+          
+          # For now, just warn about inconsistencies rather than failing
+          if ! diff -q actual_docs.txt indexed_docs.txt > /dev/null 2>&1; then
+            echo "⚠️ Warning: Design index may need updating"
+            echo "Consider running: scripts/update-design-index.py"
+          else
+            echo "Design index is consistent ✅"
+          fi
