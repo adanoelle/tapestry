@@ -1,150 +1,151 @@
-# Tapestry 🧶
+# Tapestry 🧵
 
-**Development Provenance Platform for AI-Assisted Coding**
+**Practical MCP tools for supercharging AI-assisted development**
 
-Tapestry transforms AI-assisted software development from a black box into a transparent, learnable process. By capturing the complete context of human-AI collaboration during coding sessions, it creates institutional memory that makes development teams more effective over time.
+[![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-blue?style=for-the-badge)](https://modelcontextprotocol.io/)
 
-## Overview
+Tapestry is a collection of developer-centric MCP (Model Context Protocol) tools
+that enhance AI-assisted development workflows. Built with Rust using hexagonal
+architecture and S-tier engineering practices.
 
-Modern software development increasingly relies on AI assistants like Claude Code, but this creates new challenges: teams lose track of architectural decisions, knowledge disappears when developers leave, and the reasoning behind AI suggestions remains invisible. Tapestry solves these problems by building a comprehensive provenance system that captures not just *what* code was written, but *why* and *how* development decisions were made.
-
-## Key Features
-
-- **🔍 Complete Decision Tracking** - Capture the reasoning behind every architectural choice, including alternatives considered and trade-offs made
-- **🧠 Institutional Memory** - Build persistent knowledge that survives team changes and project handovers  
-- **🤝 Human-AI Collaboration Intelligence** - Understand how AI assistance influences development decisions and outcomes
-- **📊 Pattern Recognition** - Learn which development approaches work best for different types of problems
-- **📚 Living Documentation** - Automatically generate and maintain documentation that reflects actual development practices
-- **🔄 Cross-Session Context** - Maintain development context and continue conversations across multiple coding sessions
-
-## Architecture
-
-Tapestry is built as a collection of specialized MCP (Model Context Protocol) servers that work together to create comprehensive development intelligence:
-
-### Core Components
-
-- **Provenance Tracker** - Central hub that orchestrates data collection from all sources
-- **AI Interaction Logger** - Captures Claude Code interactions with full reasoning context
-- **File System Monitor** - Tracks code changes with semantic analysis and classification  
-- **Git Intelligence** - Enhanced commit analysis and repository pattern recognition
-- **Decision Graph** - Structures architectural decisions and tracks their outcomes over time
-- **Pattern Recognition** - Identifies successful development patterns and anti-patterns
-- **Context Bridge** - Maintains session continuity and intelligent context restoration
-
-### Integration
-
-All components integrate seamlessly with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) through the Model Context Protocol, enabling:
-
-- Automatic instrumentation of development sessions
-- Real-time decision capture during AI-assisted coding  
-- Context-aware suggestions based on project history
-- Cross-session memory and pattern learning
-
-## Quick Start
-
-> **Note:** Tapestry is currently in early development. This section will be updated as we build the initial implementation.
+## 🎯 Quick Start
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/tapestry.git
 cd tapestry
 
-# Install dependencies (Rust required)
-cargo build
+# Build with cargo (coming soon)
+cargo build --release
 
-# Configure MCP servers with Claude Code
-claude mcp add tapestry-logger ./target/release/tapestry-logger
-claude mcp add tapestry-tracker ./target/release/tapestry-tracker
+# Run tests
+cargo test
 ```
 
-## Development Status
+## 🛠️ Tools
 
-🚧 **Early Development Phase** - We're currently building the foundational components:
+### Available Tools
 
-- [x] Project vision and architecture design
-- [x] Documentation structure and standards
-- [ ] Core event model and data structures  
-- [ ] AI Interaction Logger MCP server
-- [ ] File System Monitor implementation
-- [ ] Basic provenance data collection
+_Coming soon - first tool in development_
 
-See our [Roadmap](docs/VISION.md#implementation-roadmap) for detailed development phases.
+### Planned Tools
 
-## Documentation
+- **Git Context Tool** - Rich git context for AI assistants
+  ([RFC-001](docs/design/features/RFC-001-git-context-tool.md))
+- **Code Review Tool** - Automated code review with AI insights
+- **Test Generator** - Intelligent test generation based on code patterns
+- **Documentation Generator** - Living documentation from code and comments
 
-- **[Vision Document](docs/VISION.md)** - Complete project vision, goals, and long-term impact
-- **[Design Documentation](docs/design/README.md)** - Technical specifications and architecture details
-- **[Contributing Guide](docs/design/meta/contributing.md)** - How to contribute to the platform *(coming soon)*
+## 🏗️ Architecture
 
-### For Contributors
+Each tool follows hexagonal architecture for maximum flexibility and
+testability:
 
-- **[Design Documentation Guide](docs/design/meta/design-documentation-guide.md)** - Templates and standards for creating design documents
-- **[File Structure Reference](docs/design/meta/file-structure-reference.md)** - Complete guide to documentation organization
+```
+src/tools/{tool_name}/
+├── domain.rs    # Pure business logic (no dependencies)
+├── port.rs      # Interface definitions (traits)
+└── adapter.rs   # MCP implementation (infrastructure)
+```
 
-## Technology Stack
+**Key principles:**
 
-- **Language:** Rust - for performance, memory safety, and robust error handling
-- **Protocol:** Model Context Protocol (MCP) - native integration with Claude Code
-- **Architecture:** Event-driven microservices with composable intelligence
-- **Storage:** Event sourcing with pluggable storage backends
+- Dependencies flow inward (Infrastructure → Application → Domain)
+- Domain logic has zero external dependencies
+- Each tool is independent but shares common infrastructure
+- Monolithic deployment for simplicity (can extract to microservices later)
 
-## Use Cases
+## 📚 Documentation
 
-### For Development Teams
-- **Onboard new developers faster** with complete project context and decision history
-- **Maintain architectural consistency** through understanding of past decisions
-- **Improve code reviews** with historical context about similar changes
-- **Learn from successful patterns** and avoid repeating costly mistakes
+- [Project Vision](docs/VISION.md) - Where we're heading
+- [Architecture Decisions](.claude/knowledge/decisions/) - Why we built it this
+  way
+- [Team Conventions](.claude/context/team-conventions.md) - How we work
+- [Contributing Guide](docs/design/meta/CONTRIBUTING.md) - How to contribute
 
-### For Individual Developers  
-- **Resume work efficiently** with full context from previous sessions
-- **Understand legacy codebases** through traced decision history
-- **Make informed architectural choices** based on similar past decisions
-- **Collaborate better with AI** through improved context sharing
+## 🧠 AI-Native Development
 
-### For Engineering Leaders
-- **Track architectural evolution** and decision-making patterns over time
-- **Identify knowledge gaps** and risks when team members leave
-- **Measure development velocity** and identify optimization opportunities  
-- **Build data-driven processes** based on actual development patterns
+This project embraces AI-assisted development with a special `.claude/`
+directory containing:
 
-## Research Vision
+- **instructions.md** - Core principles
+- **context/** - Architecture, tech decisions, conventions
+- **knowledge/** - Decision records and learnings
+- **templates/** - RFC and tool templates
+- **commands/** - Custom AI commands
 
-Tapestry isn't just a development tool - it's a research platform for understanding effective human-AI collaboration in software development. By capturing high-fidelity data about development processes, we aim to answer questions like:
+This structure helps Claude Code and other AI assistants understand the codebase
+deeply.
 
-- What documentation patterns correlate with effective AI assistance?
-- How do successful teams naturally evolve their development practices?
-- Which types of AI suggestions lead to better long-term architectural outcomes?
-- How can development provenance improve software quality and team productivity?
+## 🚀 Roadmap
 
-## Contributing
+### Phase 1: Foundation (Current)
 
-We welcome contributions from developers, researchers, and anyone interested in improving AI-assisted development workflows. 
+- [x] Documentation structure
+- [x] Architecture decisions
+- [ ] First MCP tool (Git Context)
+- [ ] Tool registry system
+- [ ] Basic CI/CD
 
-**Ways to contribute:**
-- 🛠️ **Implementation** - Help build MCP servers and core components
-- 📝 **Documentation** - Improve guides, examples, and specifications  
-- 🔬 **Research** - Investigate questions about development provenance and AI collaboration
-- 🐛 **Testing** - Try Tapestry with your development workflows and provide feedback
+### Phase 2: Essential Tools
 
-See our [Contributing Guide](docs/design/meta/contributing.md) *(coming soon)* for detailed information.
+- [ ] Code review tool
+- [ ] Test generation tool
+- [ ] Documentation generator
+- [ ] Session memory tool
 
-## Community
+### Phase 3: Intelligence Layer
 
-- **Discussions** - Share ideas and ask questions in [GitHub Discussions](https://github.com/yourusername/tapestry/discussions)
-- **Issues** - Report bugs and request features in [GitHub Issues](https://github.com/yourusername/tapestry/issues)
-- **Discord** - Join our development community *(coming soon)*
+- [ ] Pattern recognition
+- [ ] Cross-tool integration
+- [ ] Learning system
+- [ ] Provenance tracking
 
-## License
+## 🤝 Contributing
 
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+We follow S-tier engineering practices from companies like Stripe, Google, and
+Anthropic.
 
-## Acknowledgments
+1. **Start with an RFC** - All features begin with a design document
+2. **Follow conventions** - Check `.claude/context/team-conventions.md`
+3. **Test thoroughly** - 70% unit, 20% integration, 10% e2e
+4. **Document everything** - Code should be self-documenting
 
-- [Anthropic](https://anthropic.com) for Claude Code and the Model Context Protocol
-- The broader AI-assisted development community for inspiration and feedback
-- Contributors and early adopters who help shape this platform
+See [CONTRIBUTING.md](docs/design/meta/CONTRIBUTING.md) for details.
+
+## 📊 Performance Targets
+
+- **Tool execution**: P50 < 100ms, P99 < 500ms
+- **Memory per tool**: < 10MB
+- **Startup time**: < 1 second
+- **Concurrent tools**: 1000+
+
+## 🔒 Security
+
+- OAuth 2.0 for authentication
+- JWT with short expiration (15 min)
+- Input validation on all external data
+- Rate limiting per tool
+- Audit logging for all operations
+
+## 📄 License
+
+[License details to be added]
+
+## 🙏 Acknowledgments
+
+Built with inspiration from:
+
+- [Anthropic](https://anthropic.com) for MCP and Claude
+- [Stripe](https://stripe.com) for API design principles
+- [Google](https://google.com) for engineering practices
+- The Rust community for excellent tooling
 
 ---
 
-**Status:** Early Development | **Version:** 0.1.0-alpha | **Last Updated:** January 2025
+**Status**: 🚧 Under active development  
+**Current Focus**: Implementing first MCP tool (Git Context)  
+**Looking for**: Feedback on tool ideas and use cases
+
+_Building the future of AI-assisted development, one tool at a time._
