@@ -134,20 +134,52 @@ print_status "Created RFC: $RFC_FILE"
 # Phase 2: Scaffold structure
 print_status "Phase 2: Scaffolding structure..."
 
-# Create module directory
-MODULE_DIR="src/tools/$TOOL_MODULE"
-mkdir -p $MODULE_DIR
-
-# Create test directories
-mkdir -p tests/unit/$TOOL_MODULE
-mkdir -p tests/integration
-mkdir -p tests/common
-mkdir -p benches
+# Create tool crate directory
+TOOL_DIR="tools/$TOOL_MODULE"
+mkdir -p $TOOL_DIR/src/{domain,port,adapter}
+mkdir -p $TOOL_DIR/tests/{unit,integration}
+mkdir -p $TOOL_DIR/benches
 
 print_status "Created directory structure"
 
+# Create Cargo.toml for the tool crate
+cat > $TOOL_DIR/Cargo.toml << EOF
+[package]
+name = "$TOOL_MODULE"
+version = "0.1.0"
+edition = "2021"
+authors = ["Tapestry Team"]
+description = "$DESCRIPTION"
+license = "MIT"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+
+# Tool-specific dependencies
+git2 = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }
+criterion = { workspace = true }
+mockall = { workspace = true }
+
+[[bench]]
+name = "${TOOL_MODULE}_bench"
+harness = false
+EOF
+
+print_status "Generated Cargo.toml for $TOOL_MODULE"
+
 # Phase 3: Generate domain.rs
-cat > $MODULE_DIR/domain.rs << EOF
+cat > $TOOL_DIR/src/domain.rs << EOF
 //! Domain logic for $TOOL_NAME
 //!
 //! $DESCRIPTION
@@ -230,7 +262,7 @@ EOF
 print_status "Generated domain.rs"
 
 # Generate port.rs
-cat > $MODULE_DIR/port.rs << EOF
+cat > $TOOL_DIR/src/port.rs << EOF
 //! Port definitions for $TOOL_NAME
 
 use async_trait::async_trait;
@@ -271,7 +303,7 @@ EOF
 print_status "Generated port.rs"
 
 # Generate adapter.rs
-cat > $MODULE_DIR/adapter.rs << EOF
+cat > $TOOL_DIR/src/adapter.rs << EOF
 //! MCP adapter for $TOOL_NAME
 
 use async_trait::async_trait;
@@ -341,7 +373,7 @@ EOF
 print_status "Generated adapter.rs"
 
 # Generate config.rs
-cat > $MODULE_DIR/config.rs << EOF
+cat > $TOOL_DIR/src/config.rs << EOF
 //! Configuration for $TOOL_NAME
 
 use serde::{Deserialize, Serialize};
@@ -390,8 +422,8 @@ EOF
 
 print_status "Generated config.rs"
 
-# Generate mod.rs
-cat > $MODULE_DIR/mod.rs << EOF
+# Generate lib.rs (main entry point for the crate)
+cat > $TOOL_DIR/src/lib.rs << EOF
 //! $TOOL_NAME - $DESCRIPTION
 //!
 //! This module implements an MCP tool that $DESCRIPTION.
@@ -413,10 +445,10 @@ pub fn create_tool() -> ${TOOL_STRUCT}Adapter {
 }
 EOF
 
-print_status "Generated mod.rs"
+print_status "Generated lib.rs"
 
 # Generate README.md
-cat > $MODULE_DIR/README.md << EOF
+cat > $TOOL_DIR/README.md << EOF
 # $TOOL_NAME
 
 $DESCRIPTION
@@ -486,15 +518,15 @@ print_status "Generated README.md"
 print_status "Phase 4: Generating tests..."
 
 # Generate unit tests
-cat > tests/unit/$TOOL_MODULE/mod.rs << EOF
+cat > $TOOL_DIR/tests/unit/mod.rs << EOF
 //! Unit tests for $TOOL_NAME
 
 mod domain_tests;
 mod validation_tests;
 EOF
 
-cat > tests/unit/$TOOL_MODULE/domain_tests.rs << EOF
-use tapestry::tools::$TOOL_MODULE::{
+cat > $TOOL_DIR/tests/unit/domain_tests.rs << EOF
+use $TOOL_MODULE::{
     ${TOOL_STRUCT}Service, ${TOOL_STRUCT}Input, ${TOOL_STRUCT}Output, ${TOOL_STRUCT}Error
 };
 
@@ -530,8 +562,8 @@ fn should_handle_valid_input() {
 }
 EOF
 
-cat > tests/unit/$TOOL_MODULE/validation_tests.rs << EOF
-use tapestry::tools::$TOOL_MODULE::{${TOOL_STRUCT}Input};
+cat > $TOOL_DIR/tests/unit/validation_tests.rs << EOF
+use $TOOL_MODULE::{${TOOL_STRUCT}Input};
 
 #[test]
 fn should_validate_input_fields() {
@@ -547,8 +579,8 @@ EOF
 print_status "Generated unit tests"
 
 # Generate integration test
-cat > tests/integration/${TOOL_MODULE}_test.rs << EOF
-use tapestry::tools::$TOOL_MODULE::{create_tool, ${TOOL_STRUCT}Input, ${TOOL_STRUCT}Port};
+cat > $TOOL_DIR/tests/integration/${TOOL_MODULE}_test.rs << EOF
+use $TOOL_MODULE::{create_tool, ${TOOL_STRUCT}Input, ${TOOL_STRUCT}Port};
 
 #[tokio::test]
 async fn test_tool_creation() {
@@ -584,26 +616,11 @@ EOF
 
 print_status "Generated integration tests"
 
-# Phase 5: Update module registry
-print_status "Phase 5: Updating module registry..."
+# Phase 5: Update workspace members if needed
+print_status "Phase 5: Checking workspace configuration..."
 
-# Add to src/tools/mod.rs if it exists
-if [ -f "src/tools/mod.rs" ]; then
-    if ! grep -q "pub mod $TOOL_MODULE;" src/tools/mod.rs; then
-        echo "pub mod $TOOL_MODULE;" >> src/tools/mod.rs
-        print_status "Added module to src/tools/mod.rs"
-    else
-        print_warning "Module already registered in src/tools/mod.rs"
-    fi
-else
-    # Create src/tools/mod.rs if it doesn't exist
-    cat > src/tools/mod.rs << EOF
-//! MCP Tools Registry
-
-pub mod $TOOL_MODULE;
-EOF
-    print_status "Created src/tools/mod.rs with module"
-fi
+# The workspace Cargo.toml already has tools/* as members, so new tools are automatically included
+print_status "Tool will be automatically discovered by workspace"
 
 # Phase 6: Add dependencies if needed
 print_status "Phase 6: Checking dependencies..."
@@ -680,9 +697,9 @@ echo "======================================="
 echo ""
 echo "📁 Structure created:"
 echo "  - RFC: $RFC_FILE"
-echo "  - Module: src/tools/$TOOL_MODULE/"
-echo "  - Tests: tests/unit/$TOOL_MODULE/"
-echo "  - Integration: tests/integration/${TOOL_MODULE}_test.rs"
+echo "  - Tool crate: tools/$TOOL_MODULE/"
+echo "  - Tests: tools/$TOOL_MODULE/tests/"
+echo "  - Benchmarks: tools/$TOOL_MODULE/benches/"
 echo ""
 echo "📝 Next steps:"
 echo "  1. Review and complete the RFC"
@@ -694,7 +711,7 @@ echo "  6. Update CHANGELOG.md"
 echo ""
 echo "🤖 Agent workflow commands:"
 echo "  - Design Review: 'Act as Design Reviewer, review $RFC_FILE'"
-echo "  - Implementation: 'Act as Rust Expert, implement src/tools/$TOOL_MODULE/domain.rs'"
+echo "  - Implementation: 'Act as Rust Expert, implement tools/$TOOL_MODULE/src/domain.rs'"
 echo "  - Testing: 'Act as Test Writer, create tests for $TOOL_MODULE'"
 echo "  - Security: 'Act as Security Auditor, review $TOOL_MODULE for vulnerabilities'"
 echo ""

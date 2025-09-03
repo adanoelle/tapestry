@@ -80,27 +80,36 @@ port interfaces, and data flow.
 
 ## Phase 2: Scaffold Structure (Automated)
 
-### Step 2.1: Create Module Structure with Cargo
+### Step 2.1: Create Tool Crate Structure
 
 ```bash
-# Convert kebab-case to snake_case for Rust module
+# Convert kebab-case to snake_case for Rust crate name
 TOOL_MODULE=$(echo "$TOOL_NAME" | tr '-' '_')
 
-# Create the tool module directory
-mkdir -p src/tools/$TOOL_MODULE
+# Create the tool crate directory
+mkdir -p tools/$TOOL_MODULE/src/{domain,port,adapter}
+mkdir -p tools/$TOOL_MODULE/tests/{unit,integration}
+mkdir -p tools/$TOOL_MODULE/benches
 
-# Create all module files
-touch src/tools/$TOOL_MODULE/{mod.rs,domain.rs,port.rs,adapter.rs,config.rs}
+# Create Cargo.toml for the tool
+cat > tools/$TOOL_MODULE/Cargo.toml << EOF
+[package]
+name = "$TOOL_MODULE"
+version = "0.1.0"
+edition = "2021"
 
-# Create test directories
-mkdir -p tests/unit/$TOOL_MODULE
-mkdir -p tests/integration
-mkdir -p tests/common
+[dependencies]
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+async-trait = { workspace = true }
 
-# Create benchmark directory if needed
-mkdir -p benches
+[dev-dependencies]
+tempfile = { workspace = true }
+EOF
 
-echo "✅ Created module structure for $TOOL_NAME"
+echo "✅ Created crate structure for $TOOL_NAME"
 ```
 
 ### Step 2.2: Add to Cargo.toml if needed
@@ -127,13 +136,12 @@ cargo add --dev criterion --features html_reports
 echo "✅ Updated Cargo.toml dependencies"
 ```
 
-### Step 2.3: Register in tools/mod.rs
+### Step 2.3: Workspace Auto-Discovery
 
 ```bash
-# Add module to src/tools/mod.rs
-echo "pub mod $TOOL_MODULE;" >> src/tools/mod.rs
-
-echo "✅ Registered module in tools/mod.rs"
+# The workspace Cargo.toml already includes tools/*
+# so the new crate is automatically discovered
+echo "✅ Tool crate will be auto-discovered by workspace"
 ```
 
 ---
@@ -146,7 +154,7 @@ echo "✅ Registered module in tools/mod.rs"
 
 **Rust Expert Task**: Implement pure domain logic with no external dependencies.
 
-Generate `src/tools/$TOOL_MODULE/domain.rs`:
+Generate `tools/$TOOL_MODULE/src/domain.rs`:
 
 ```rust
 //! Domain logic for $TOOL_NAME
@@ -781,9 +789,9 @@ This command leverages cargo for:
 
 **File Organization**:
 
-- Source in `src/tools/{module}/`
-- Tests in `tests/unit/{module}/` and `tests/integration/`
-- Benchmarks in `benches/`
+- Each tool is a separate crate in `tools/{tool-name}/`
+- Tests within each crate at `tools/{tool-name}/tests/`
+- Benchmarks within each crate at `tools/{tool-name}/benches/`
 - Documentation with code
 
 **Remember**: The agents ensure quality at each phase. Trust the process!
