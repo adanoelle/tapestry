@@ -1,68 +1,100 @@
-# Design Documentation Index
+# Design Documentation
 
-This directory contains the detailed design specifications for the Development Provenance Platform. Each document provides implementation-level details for the components outlined in the [Vision Document](../VISION.md).
+Welcome to the Tapestry design documentation. This directory contains all
+architectural decisions, feature RFCs, and implementation details for the
+project.
 
-## Core Architecture
+## 📁 Directory Structure
 
-- [Event Model](core/event-model.md) - Unified event structure across all servers
-- [Provenance Tracker](core/provenance-tracker.md) - Central data collection hub and orchestrator
-- [Session Management](core/session-management.md) - How we define and track development sessions
-- [Storage Architecture](core/storage-architecture.md) - Data persistence, querying, and lifecycle management
+```
+design/
+├── features/         # Feature RFCs and specifications
+├── implementation/   # Detailed implementation guides
+├── meta/            # Documentation about documentation
+└── archive/         # Historical/superseded documents
+```
 
-## MCP Servers
+## 🎯 Quick Links
 
-### Data Collection Layer
-- [AI Interaction Logger](servers/ai-interaction-logger/) - Claude Code interaction capture and analysis
-- [File System Monitor](servers/file-system-monitor/) - Real-time file change detection and classification
-- [Git Intelligence](servers/git-intelligence/) - Enhanced commit analysis and repository insights
+### Getting Started
 
-### Intelligence & Analysis Layer
-- [Decision Graph Server](servers/decision-graph/) - Structured decision tree construction and tracking
-- [Pattern Recognition Server](servers/pattern-recognition/) - Development workflow analysis and optimization
-- [Project Memory Server](servers/project-memory/) - Semantic understanding and cross-project learning
+- [Project Vision](../VISION.md) - Overall project vision and goals
+- [Contributing](meta/CONTRIBUTING.md) - How to contribute to Tapestry
 
-### User Experience Layer
-- [Context Bridge Server](servers/context-bridge/) - Session continuity and intelligent context restoration
-- [Documentation Generator](servers/documentation-generator/) - Living documentation from provenance data
-- [Review Assistant Server](servers/review-assistant/) - Context-aware code review support
+### Active RFCs
 
-## Features & Experiences
+- [RFC-001: Git Context Tool](features/RFC-001-git-context-tool.md) - MCP tool
+  for rich git context
 
-- [CLAUDE.md Enhancement](features/claude-md-enhancement.md) - Divergence detection and evidence-based documentation updates
-- [Decision Tracking](features/decision-tracking.md) - Capturing and linking architectural decisions over time
-- [Cross-Session Memory](features/cross-session-memory.md) - Context preservation across development periods
-- [Pattern Learning](features/pattern-learning.md) - How the system learns from development patterns
-- [Team Collaboration](features/team-collaboration.md) - Multi-developer workflow support
+### Implementation Guides
 
-## Implementation Guides
+- *Coming soon* - Implementation guides will be added as tools are built
 
-- [MCP Integration Patterns](implementation/mcp-patterns.md) - Common patterns for building MCP servers
-- [Data Flow Architecture](implementation/data-flow.md) - How data moves through the system
-- [Testing Strategy](implementation/testing-strategy.md) - Approach to testing provenance systems
-- [Deployment Guide](implementation/deployment.md) - How teams set up and configure the platform
+### Archived Documents
 
-## Meta
+- [Original Vision](../archive/original-vision/) - Initial provenance platform vision and related docs
 
-- [Architecture Decisions](meta/architecture-decisions.md) - Key technical choices and rationale
-- [Research Questions](meta/research-agenda.md) - Open questions and investigation areas
-- [Roadmap](meta/roadmap.md) - Development phases and milestones
-- [Contributing Guide](meta/contributing.md) - How to contribute to platform development
+## 📝 Creating New Design Documents
 
-## Document Status Legend
+1. **For new MCP tools**: Create an RFC in `features/` using the RFC template
+2. **For implementation details**: Add to `implementation/`
+3. **For process/meta docs**: Add to `meta/`
 
-- 🚧 **Draft** - Early stage, major changes expected
-- 📝 **In Progress** - Being actively developed
-- ✅ **Complete** - Ready for implementation
-- 🔄 **Under Review** - Seeking feedback
-- 📚 **Reference** - Stable reference material
+Use the templates in `.claude/templates/` as starting points.
 
-## Quick Navigation
+## 🔄 RFC Process
 
-- **Just getting started?** Read the [Vision Document](../VISION.md) first
-- **Want to implement a server?** Check [MCP Integration Patterns](implementation/mcp-patterns.md)
-- **Looking for a specific feature?** Browse the [Features](#features--experiences) section
-- **Need architecture context?** Start with [Core Architecture](#core-architecture)
+1. **Propose**: Create RFC with status `PROPOSED`
+2. **Discuss**: Gather feedback (even if just self-review)
+3. **Decide**: Mark as `ACCEPTED` or `REJECTED`
+4. **Implement**: Update status to `IMPLEMENTING`
+5. **Complete**: Mark as `IMPLEMENTED`
+
+## 📊 RFC Status Overview
+
+| RFC                                                               | Status   | Author | Description                        |
+| ----------------------------------------------------------------- | -------- | ------ | ---------------------------------- |
+| [RFC-001: Git Context Tool](features/RFC-001-git-context-tool.md) | PROPOSED | Ada    | Rich git context for AI assistants |
+
+## 🏗️ Architecture Decisions
+
+Major architectural decisions are documented as Architecture Decision Records
+(ADRs) in `.claude/knowledge/decisions/`:
+
+- [ADR-001: Hexagonal Architecture](../../.claude/knowledge/decisions/ADR-001-hexagonal-architecture.md)
+
+## 🚀 Roadmap
+
+### Phase 1: Foundation (Current)
+
+- [x] Documentation structure
+- [x] Architecture decisions
+- [ ] First MCP tool (Git Context)
+- [ ] Tool registry system
+
+### Phase 2: Essential Tools
+
+- [ ] Code review tool
+- [ ] Test generation tool
+- [ ] Documentation generator
+- [ ] Session memory tool
+
+### Phase 3: Intelligence Layer
+
+- [ ] Pattern recognition
+- [ ] Cross-tool integration
+- [ ] Learning system
+- [ ] Provenance tracking
+
+## 🤝 Contributing
+
+See [Contributing Guide](meta/contributing.md) for details on:
+
+- RFC template and process
+- Code review standards
+- Documentation requirements
+- Testing expectations
 
 ---
 
-*This index is maintained manually. When adding new design documents, please update this file to maintain discoverability.*
+_Last updated: 2024-01-15_

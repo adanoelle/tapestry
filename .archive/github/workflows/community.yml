@@ -28,14 +28,18 @@ jobs:
                 repo: context.repo.repo,
                 body: `👋 Welcome to Tapestry! Thank you for your first contribution.
 
-This project focuses on development provenance and AI-assisted coding workflows. Please check out:
+This project builds MCP tools for AI-assisted development using a pragmatic, incremental approach. Please check out:
 - [Project Vision](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/VISION.md)
-- [Design Documentation](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/design/README.md)
-- [Contributing Guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/design/meta/contributing.md) *(coming soon)*
+- [AI Collaboration Guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.claude/README.md)
+- [Agent Workflow Guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.claude/agents/WORKFLOW-GUIDE.md)
+- [Contributing Guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/design/meta/CONTRIBUTING.md)
 
 We're excited to have you as part of the community! 🎉
 
-If you're proposing a new feature, please consider creating a design document following our [design documentation guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/design/meta/design-documentation-guide.md).`
+If you're proposing a new MCP tool, please:
+1. Create an RFC following our [RFC template](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.claude/templates/rfc-template.md)
+2. Use our `/create-mcp-tool` command for scaffolding
+3. Follow our [agent-driven workflow](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.claude/workflows/new-mcp-tool.md)`
               });
             }
 
@@ -56,10 +60,11 @@ If you're proposing a new feature, please consider creating a design document fo
                 repo: context.repo.repo,
                 body: `🎉 Thank you for your first pull request to Tapestry!
 
-Your contribution helps advance our understanding of AI-assisted development workflows. Please ensure:
-- [ ] Your PR includes appropriate tests
-- [ ] Design documents are updated if needed
-- [ ] The PR description clearly explains the changes
+Your contribution helps build practical MCP tools for AI-assisted development. Please ensure:
+- [ ] Your PR includes appropriate tests (in `tests/` directory, not inline)
+- [ ] RFCs are created for new tools or major features
+- [ ] The PR follows our hexagonal architecture pattern
+- [ ] Agent review checklists have been considered
 
 Our maintainers will review your PR soon. Thanks for contributing to development provenance research! 🧶`
               });
@@ -76,7 +81,7 @@ Our maintainers will review your PR soon. Thanks for contributing to development
             const labels = [];
             
             // Auto-label based on content
-            if (title.includes('[feature]') || body.includes('mcp server')) {
+            if (title.includes('[feature]') || body.includes('mcp tool')) {
               labels.push('enhancement');
             }
             
@@ -84,12 +89,16 @@ Our maintainers will review your PR soon. Thanks for contributing to development
               labels.push('bug');
             }
             
-            if (title.includes('[design]') || body.includes('design document')) {
-              labels.push('documentation', 'design');
+            if (title.includes('[rfc]') || body.includes('rfc')) {
+              labels.push('documentation', 'rfc');
             }
             
-            if (body.includes('research') || body.includes('provenance')) {
-              labels.push('research');
+            if (title.includes('[agent]') || body.includes('agent')) {
+              labels.push('ai-workflow');
+            }
+            
+            if (body.includes('.claude') || body.includes('ai-assisted')) {
+              labels.push('ai-native');
             }
             
             if (labels.length > 0) {
