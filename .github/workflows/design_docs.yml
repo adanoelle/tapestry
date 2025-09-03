@@ -2,7 +2,10 @@ name: Design Documentation Workflow
 
 on:
   pull_request:
-    paths: ['docs/design/**']
+    paths: 
+      - 'docs/design/**'
+      - '.claude/agents/**'
+      - '.claude/workflows/**'
 
 jobs:
   validate-design-docs:
@@ -22,12 +25,26 @@ jobs:
           for file in $(find docs/design -name "*.md" ! -name "README.md"); do
             echo "Checking $file..."
             
-            if ! grep -q "^**Status:**" "$file"; then
-              MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Status header"
-            fi
-            
-            if ! grep -q "^**Last Updated:**" "$file"; then
-              MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Last Updated header"
+            # Different validation for RFCs vs other design docs
+            if [[ "$file" == *"RFC-"* ]]; then
+              # RFC validation
+              if ! grep -q "^## Summary" "$file"; then
+                MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Summary section"
+              fi
+              if ! grep -q "^## Motivation" "$file"; then
+                MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Motivation section"
+              fi
+              if ! grep -q "^## Design" "$file"; then
+                MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Design section"
+              fi
+            else
+              # Regular design doc validation
+              if ! grep -q "^**Status:**" "$file"; then
+                MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Status header"
+              fi
+              if ! grep -q "^**Last Updated:**" "$file"; then
+                MISSING_HEADERS="$MISSING_HEADERS\n- $file: Missing Last Updated header"
+              fi
             fi
           done
           
@@ -62,4 +79,19 @@ jobs:
             echo "Consider running: scripts/update-design-index.py"
           else
             echo "Design index is consistent ✅"
+          fi
+          
+      - name: Validate agent workflow integration
+        run: |
+          echo "Checking agent workflow documentation..."
+          
+          # Check if workflow guide references all agents
+          if [ -f ".claude/agents/WORKFLOW-GUIDE.md" ]; then
+            AGENTS=("Design Reviewer" "Rust Expert" "Test Writer" "Security Auditor")
+            for agent in "${AGENTS[@]}"; do
+              if ! grep -q "$agent" .claude/agents/WORKFLOW-GUIDE.md; then
+                echo "⚠️ Warning: $agent not referenced in workflow guide"
+              fi
+            done
+            echo "✅ Agent workflow guide validated"
           fi

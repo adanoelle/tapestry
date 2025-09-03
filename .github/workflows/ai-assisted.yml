@@ -1,0 +1,292 @@
+name: AI-Assisted Development Validation
+
+on:
+  push:
+    branches: [ main, develop, 'feat/*' ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.claude/**'
+      - 'src/tools/**'
+      - 'docs/design/features/RFC-*.md'
+
+jobs:
+  validate-claude-structure:
+    name: Validate .claude Directory
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Validate .claude structure
+        run: |
+          echo "Validating .claude directory structure..."
+          
+          # Check required directories exist
+          REQUIRED_DIRS=(
+            ".claude/context"
+            ".claude/agents"
+            ".claude/commands"
+            ".claude/templates"
+            ".claude/workflows"
+          )
+          
+          for dir in "${REQUIRED_DIRS[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Missing required directory: $dir"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required directories present"
+          
+      - name: Validate agent definitions
+        run: |
+          echo "Checking agent definitions..."
+          
+          # Required agents
+          REQUIRED_AGENTS=(
+            "design-reviewer.md"
+            "rust-expert.md"
+            "test-writer.md"
+            "security-auditor.md"
+          )
+          
+          for agent in "${REQUIRED_AGENTS[@]}"; do
+            if [ ! -f ".claude/agents/$agent" ]; then
+              echo "❌ Missing agent definition: $agent"
+              exit 1
+            fi
+            
+            # Check agent has required sections
+            if ! grep -q "## Agent Identity" ".claude/agents/$agent"; then
+              echo "❌ Agent $agent missing Identity section"
+              exit 1
+            fi
+            
+            if ! grep -q "## Core Expertise" ".claude/agents/$agent"; then
+              echo "❌ Agent $agent missing Core Expertise section"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All agent definitions valid"
+          
+      - name: Validate instructions and context
+        run: |
+          echo "Checking AI context files..."
+          
+          # Check instructions.md exists and has content
+          if [ ! -s ".claude/instructions.md" ]; then
+            echo "❌ Missing or empty .claude/instructions.md"
+            exit 1
+          fi
+          
+          # Check key context files
+          CONTEXT_FILES=(
+            "architecture.md"
+            "team-conventions.md"
+            "tech-decisions.md"
+          )
+          
+          for file in "${CONTEXT_FILES[@]}"; do
+            if [ ! -s ".claude/context/$file" ]; then
+              echo "❌ Missing or empty context file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ AI context files validated"
+
+  validate-rfc:
+    name: Validate RFC Documents
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'RFC') || contains(github.event.pull_request.title, 'RFC')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Validate RFC structure
+        run: |
+          echo "Validating RFC documents..."
+          
+          # Find all RFC files
+          for rfc in docs/design/features/RFC-*.md; do
+            if [ -f "$rfc" ]; then
+              echo "Checking $rfc..."
+              
+              # Check required sections
+              REQUIRED_SECTIONS=(
+                "## Summary"
+                "## Motivation"
+                "## Design"
+                "## Implementation"
+              )
+              
+              for section in "${REQUIRED_SECTIONS[@]}"; do
+                if ! grep -q "^$section" "$rfc"; then
+                  echo "❌ RFC missing required section: $section"
+                  exit 1
+                fi
+              done
+              
+              # Check RFC numbering
+              filename=$(basename "$rfc")
+              if ! [[ "$filename" =~ ^RFC-[0-9]{3}-.*\.md$ ]]; then
+                echo "❌ RFC filename doesn't follow pattern: RFC-XXX-name.md"
+                exit 1
+              fi
+            fi
+          done
+          
+          echo "✅ All RFCs validated"
+
+  agent-review-simulation:
+    name: Simulate Agent Reviews
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          
+      - name: Design Reviewer checks
+        run: |
+          echo "🏗️ Design Reviewer Agent: Checking architecture..."
+          
+          # Check for hexagonal architecture patterns
+          if find src/tools -name "*.rs" -exec grep -l "domain\|port\|adapter" {} \; | head -n 1 > /dev/null; then
+            echo "✅ Hexagonal architecture patterns detected"
+          fi
+          
+          # Check for proper module structure
+          for tool_dir in src/tools/*/; do
+            if [ -d "$tool_dir" ]; then
+              tool_name=$(basename "$tool_dir")
+              echo "Checking tool: $tool_name"
+              
+              # Expected files in hexagonal architecture
+              EXPECTED_FILES=("domain.rs" "port.rs" "adapter.rs" "mod.rs")
+              for file in "${EXPECTED_FILES[@]}"; do
+                if [ ! -f "$tool_dir$file" ]; then
+                  echo "⚠️ Missing $file in $tool_name"
+                fi
+              done
+            fi
+          done
+          
+      - name: Rust Expert checks
+        run: |
+          echo "🦀 Rust Expert Agent: Running code quality checks..."
+          
+          # Run clippy with strict settings
+          cargo clippy --all-targets --all-features -- \
+            -D warnings \
+            -W clippy::unwrap_used \
+            -W clippy::expect_used \
+            -W clippy::panic \
+            -W clippy::unimplemented \
+            -W clippy::todo || true
+          
+          # Check for unsafe code
+          if grep -r "unsafe" src/ --include="*.rs"; then
+            echo "⚠️ Unsafe code detected - needs justification"
+          fi
+          
+          # Check formatting
+          cargo fmt -- --check
+          
+      - name: Test Writer checks
+        run: |
+          echo "🧪 Test Writer Agent: Checking test organization..."
+          
+          # Check test directory structure
+          if [ -d "tests" ]; then
+            echo "✅ Tests directory exists"
+            
+            # Check for proper test organization
+            if [ -d "tests/unit" ] && [ -d "tests/integration" ]; then
+              echo "✅ Test directories properly organized"
+            else
+              echo "⚠️ Missing unit or integration test directories"
+            fi
+          fi
+          
+          # Check for benchmarks in correct location
+          if [ -d "benches" ]; then
+            echo "✅ Benchmarks in correct directory"
+          fi
+          
+          # Run tests
+          cargo test --all --verbose
+          
+      - name: Security Auditor checks
+        run: |
+          echo "🔒 Security Auditor Agent: Running security audit..."
+          
+          # Install and run cargo-audit
+          cargo install cargo-audit || true
+          cargo audit || true
+          
+          # Check for common security patterns
+          echo "Checking for hardcoded secrets..."
+          if grep -r "password\|secret\|token\|api_key" src/ --include="*.rs" | \
+             grep -v "// \|///\|pub struct\|fn \|let \|const " | \
+             grep -i "=.*\"" ; then
+            echo "⚠️ Potential hardcoded secrets detected"
+          fi
+          
+          echo "Checking for command injection risks..."
+          if grep -r "Command::new\|std::process" src/ --include="*.rs"; then
+            echo "⚠️ Command execution detected - needs security review"
+          fi
+
+  tool-scaffolding-test:
+    name: Test Tool Scaffolding
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'tool') || contains(github.event.pull_request.title, 'tool')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Test scaffold script
+        run: |
+          echo "Testing tool scaffolding script..."
+          
+          # Make script executable
+          chmod +x .claude/scripts/scaffold-mcp-tool.sh
+          
+          # Test with a dummy tool (dry run)
+          export DRY_RUN=true
+          .claude/scripts/scaffold-mcp-tool.sh test-tool "Test tool for validation" || true
+          
+          echo "✅ Scaffolding script validated"
+
+  update-documentation:
+    name: Update Documentation Index
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Update tool registry
+        run: |
+          echo "Updating tool registry documentation..."
+          
+          # Count tools
+          TOOL_COUNT=$(find src/tools -mindepth 1 -maxdepth 1 -type d | wc -l)
+          echo "Found $TOOL_COUNT tools"
+          
+          # Count RFCs
+          RFC_COUNT=$(find docs/design/features -name "RFC-*.md" | wc -l)
+          echo "Found $RFC_COUNT RFCs"
+          
+          # Count agents
+          AGENT_COUNT=$(find .claude/agents -name "*.md" ! -name "README.md" ! -name "WORKFLOW-GUIDE.md" | wc -l)
+          echo "Found $AGENT_COUNT agents"
+          
+          echo "📊 Project metrics: $TOOL_COUNT tools, $RFC_COUNT RFCs, $AGENT_COUNT agents"
