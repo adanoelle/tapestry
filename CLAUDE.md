@@ -1,207 +1,321 @@
-# Development Context for Claude Code
+# CLAUDE.md - Tapestry Quick Reference
 
-This document provides essential context for AI assistants working on the Development Provenance Platform.
+> **Purpose**: This file provides Claude Code with immediate, actionable
+> patterns and commands for working in the Tapestry codebase. For deep context
+> and principles, see `.claude/`.
 
-## Project Overview
+## 🎯 What is Tapestry?
 
-We're building a **Development Provenance Platform** - a collection of Rust-based MCP servers that capture the complete context of human-AI collaboration during software development. The goal is to transform AI-assisted coding from a black box into a transparent, learnable process that builds institutional knowledge.
+Tapestry is a monolithic suite of MCP (Model Context Protocol) tools for
+AI-assisted development, built with Rust using hexagonal architecture.
 
-**Key Concept:** Instead of losing the "why" behind development decisions, we capture reasoning, alternatives considered, and outcomes to create persistent development knowledge that survives team changes.
+**Quick Context**:
 
-## Architecture Philosophy
+- **Language**: Rust (async-first with Tokio)
+- **Architecture**: Hexagonal (Ports & Adapters)
+- **Deployment**: Monolithic (for now)
+- **MCP Library**: rmcp
+- **Key Goal**: Build tools that enhance AI-assisted development workflows
 
-- **MCP-native design**: Built specifically for the Claude ecosystem using Model Context Protocol
-- **Event sourcing approach**: All development activities become traceable events
-- **Composable intelligence**: Multiple specialized MCP servers work together
-- **Human-AI collaboration focus**: Capture both human reasoning and AI suggestions
-- **Institutional memory**: Build knowledge that persists across team changes
+## 🚀 Quick Commands
 
-## Current Development Phase
+```bash
+# Create a new MCP tool
+/create-mcp-tool "tool-name" "description"
 
-**Phase 1: Foundation Building**
-- Defining core event models and data structures
-- Implementing the first MCP server (AI Interaction Logger)
-- Establishing development patterns for the monorepo
-- Creating basic provenance data collection
+# Write an RFC for a feature
+/write-rfc "Feature Name" "Problem to solve"
 
-## Documentation Structure
+# Check current sprint status
+cat .claude/context/project-state.md
 
-Our design documentation follows a strict organization pattern:
-
-### Essential Documents to Reference
-- **`docs/VISION.md`** - Complete project vision and long-term goals
-- **`docs/design/README.md`** - Design documentation index and navigation
-- **`docs/design/meta/design-documentation-guide.md`** - Templates and standards for creating new design docs
-- **`docs/design/meta/file-structure-reference.md`** - Where to place new documentation
-
-### When Creating New Design Documents
-1. **Check the file structure reference** for correct placement
-2. **Use appropriate templates** from the documentation guide
-3. **Follow naming conventions** (kebab-case, numbering only when sequence matters)
-4. **Update the design index** when adding new documents
-
-### Documentation Categories
-- **`docs/design/core/`** - Foundational components (numbered sequence)
-- **`docs/design/servers/`** - Individual MCP server specs (one directory per server)
-- **`docs/design/features/`** - User-facing capabilities (no numbering)
-- **`docs/design/implementation/`** - Cross-cutting technical guidance (numbered sequence)
-- **`docs/design/meta/`** - Process and project management docs
-
-## Technology Stack
-
-**Language:** Rust (chosen for performance, memory safety, and ecosystem compatibility)
-**Protocol:** Model Context Protocol (MCP) for Claude integration
-**Architecture:** Event-driven, microservices-style MCP servers
-**Storage:** TBD - likely SQLite for local development, PostgreSQL for production
-
-## Development Principles
-
-### Code Quality Standards
-- **Explicit error handling**: Use `Result<T, E>` types, avoid `unwrap()` in production code
-- **Async throughout**: All I/O operations should be async for performance
-- **Type safety**: Leverage Rust's type system to prevent runtime errors
-- **Structured logging**: Use consistent logging for debugging and observability
-
-### MCP Server Design Patterns
-- **Single responsibility**: Each server handles one aspect of provenance
-- **Event publishing**: Servers emit events that others can consume
-- **Stateless when possible**: Minimize server-side state management
-- **Graceful degradation**: Continue working even if some data sources are unavailable
-
-### Testing Approach
-- **Unit tests**: Core business logic and data transformations
-- **Integration tests**: MCP protocol compliance and server interactions
-- **End-to-end tests**: Full workflow validation with real Claude Code usage
-
-## Workspace Structure
-
-```
-tapestry/                           # Root of monorepo
-├── Cargo.toml                      # Workspace configuration
-├── VISION.md                       # Project vision
-├── CLAUDE.md                       # This file
-├── docs/                           # All documentation
-│   └── design/                     # Design specifications
-├── crates/                         # Rust crates
-│   ├── provenance-core/            # Shared types and utilities
-│   ├── ai-interaction-logger/      # First MCP server
-│   └── [other-servers]/            # Additional MCP servers
-└── examples/                       # Usage examples and demos
+# See today's focus
+cat .claude/sessions/current.md
 ```
 
-## Current Priorities
+## 📁 Directory Structure
 
-### Immediate Next Steps (This Session)
-1. **Set up Rust workspace**: Create `Cargo.toml` and initial crate structure
-2. **Define core event model**: Create `docs/design/core/01-event-model.md` and implement in `provenance-core`
-3. **Start AI Interaction Logger**: Basic MCP server scaffold with event capture
+```
+tapestry/
+├── src/
+│   ├── domain/            # Pure business logic (no dependencies!)
+│   ├── application/       # Use cases and ports (interfaces)
+│   ├── infrastructure/    # External adapters (MCP, DB, APIs)
+│   ├── tools/             # Individual MCP tools
+│   │   └── {tool}/
+│   │       ├── domain.rs  # Core logic
+│   │       ├── port.rs    # Interface
+│   │       └── adapter.rs # MCP implementation
+│   └── registry/          # Tool discovery and management
+├── docs/
+│   ├── design/            # RFCs and design documents
+│   └── VISION.md          # Project vision
+├── .claude/               # AI collaboration context (see below)
+└── CLAUDE.md              # This file
+```
 
-### Short-term Goals (Next Few Sessions)
-- Complete AI Interaction Logger with full MCP interface
-- Add file system monitoring capabilities
-- Implement basic session boundary detection
-- Create initial data storage and querying
+## 🏗️ Architecture Pattern
 
-## Key Design Decisions
+**Every tool follows this structure:**
 
-### Event Sourcing for Provenance
-**Decision:** Use event sourcing as the foundation for all provenance tracking
-**Rationale:** Provides complete audit trail, enables time-travel debugging, and supports flexible querying
-**Alternatives Considered:** CRUD-based approach, document storage
-**Status:** Committed
+```rust
+// 1. Domain (src/tools/my_tool/domain.rs) - PURE LOGIC
+pub struct MyToolService {
+    // No external dependencies!
+}
 
-### Rust for MCP Servers
-**Decision:** Implement all MCP servers in Rust
-**Rationale:** Performance for high-volume event processing, memory safety, strong type system
-**Alternatives Considered:** TypeScript (easier development), Python (rapid prototyping)
-**Status:** Committed
+impl MyToolService {
+    pub fn execute(&self, input: Input) -> Result<Output> {
+        // Pure business logic only
+    }
+}
 
-### Separate MCP Servers vs. Monolithic
-**Decision:** Build multiple specialized MCP servers that compose together
-**Rationale:** Better separation of concerns, independent scaling, clearer interfaces
-**Alternatives Considered:** Single large MCP server with multiple tools
-**Status:** Committed
+// 2. Port (src/tools/my_tool/port.rs) - INTERFACE
+#[async_trait]
+pub trait MyToolPort {
+    async fn execute(&self, input: Input) -> Result<Output>;
+}
 
-## Integration Context
+// 3. Adapter (src/tools/my_tool/adapter.rs) - MCP IMPLEMENTATION
+#[rmcp::tool(name = "my-tool", description = "...")]
+impl Tool for MyToolAdapter {
+    // MCP protocol implementation
+}
+```
 
-### MCP Protocol Usage
-- **Servers as tools**: Each MCP server exposes tools for specific provenance capabilities
-- **Event-driven coordination**: Servers communicate through shared event streams
-- **Claude Code integration**: Designed to work seamlessly with Claude Code workflows
+**Remember**: Dependencies flow inward → Infrastructure depends on Application
+depends on Domain
 
-### Development Workflow Integration
-- **Git hooks**: Capture commit-level provenance automatically
-- **File watching**: Monitor development workspace for changes
-- **Session tracking**: Understand development session boundaries and context
+## ✅ Quick Checklist for New Code
 
-## Common Patterns and Conventions
+### Before Writing
+
+- [ ] Is there an RFC for this feature? Check `docs/design/features/`
+- [ ] Have you read the conventions? See `.claude/context/team-conventions.md`
+- [ ] Is your session context current? Update `.claude/sessions/current.md`
+
+### While Writing
+
+- [ ] Domain logic has ZERO external dependencies
+- [ ] Using `Result<T, E>` for all fallible operations (no `unwrap()`!)
+- [ ] Errors are actionable (tell the user/agent how to fix)
+- [ ] Following naming conventions (snake_case functions, PascalCase types)
+
+### After Writing
+
+- [ ] Tests written (unit for domain, integration for adapters)
+- [ ] Documentation updated (in same PR!)
+- [ ] Run: `cargo fmt && cargo clippy && cargo test`
+- [ ] Updated CHANGELOG.md
+
+## 🔧 Common Patterns
 
 ### Error Handling
+
 ```rust
-// Prefer Result types with descriptive errors
-pub enum ProvenanceError {
-    StorageError(String),
-    SerializationError(String),
-    NetworkError(String),
+// Domain errors (thiserror)
+#[derive(Error, Debug)]
+pub enum ToolError {
+    #[error("Configuration missing: Set {var} environment variable")]
+    ConfigMissing { var: String },
 }
 
-// Use ? operator for error propagation
-pub fn process_event(event: Event) -> Result<(), ProvenanceError> {
-    let stored = store_event(event)?;
-    publish_event(stored)?;
-    Ok(())
+// Application errors (anyhow)
+use anyhow::{Context, Result};
+let config = load_config()
+    .context("Failed to load configuration")?;
+```
+
+### Tool Creation
+
+```rust
+// Always follow this pattern for new tools
+pub mod my_tool {
+    pub mod domain;    // Core logic
+    pub mod port;      // Interface
+    pub mod adapter;   // MCP impl
+
+    pub fn create_tool() -> MyToolAdapter {
+        MyToolAdapter::new()
+    }
 }
 ```
 
-### Async Patterns
-```rust
-// Use tokio for async runtime
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Server startup
-}
+### Testing
 
-// Prefer async/await over callbacks
-async fn handle_request(req: Request) -> Response {
-    let result = process_async(req).await;
-    create_response(result)
+```rust
+#[cfg(test)]
+mod tests {
+    // Test names describe behavior
+    #[test]
+    fn should_return_error_when_input_invalid() {
+        // Arrange
+        // Act
+        // Assert
+    }
 }
 ```
 
-### MCP Server Structure
-```rust
-// Standard MCP server trait implementation
-impl McpServer for ProvenanceServer {
-    fn tools(&self) -> Vec<Tool> { ... }
-    async fn call_tool(&self, name: &str, args: Value) -> Result<ToolResult> { ... }
-}
+## 📍 Navigation Guide
+
+### Where to Find Things
+
+| Looking for...       | Location                              | Command                                   |
+| -------------------- | ------------------------------------- | ----------------------------------------- |
+| Core principles      | `.claude/instructions.md`             | `cat .claude/instructions.md`             |
+| Architecture details | `.claude/context/architecture.md`     | `cat .claude/context/architecture.md`     |
+| Coding standards     | `.claude/context/team-conventions.md` | `cat .claude/context/team-conventions.md` |
+| Current sprint       | `.claude/context/project-state.md`    | `cat .claude/context/project-state.md`    |
+| Tech decisions       | `.claude/context/tech-decisions.md`   | `cat .claude/context/tech-decisions.md`   |
+| RFC template         | `.claude/templates/rfc-template.md`   | Use `/write-rfc` command                  |
+| Tool template        | `.claude/commands/create-mcp-tool.md` | Use `/create-mcp-tool` command            |
+
+### When to Reference What
+
+**Use THIS file (CLAUDE.md) for**:
+
+- Quick reminders of patterns
+- Common code snippets
+- Directory navigation
+- Quick commands
+
+**Use `.claude/instructions.md` for**:
+
+- Core principles that never change
+- S-tier company practices
+- Security requirements
+- Overall philosophy
+
+**Use `.claude/context/` for**:
+
+- Current project state
+- Architecture decisions
+- Team conventions
+- Technical choices
+
+**Use `.claude/sessions/current.md` for**:
+
+- Today's specific task
+- Current blockers
+- Work in progress
+
+## 🎭 Working with Other CLAUDE.md Files
+
+### Hierarchy of CLAUDE.md Files
+
+```
+CLAUDE.md (root - this file)         # Global patterns, navigation
+├── src/tools/CLAUDE.md              # Tool-specific patterns
+├── src/domain/CLAUDE.md             # Domain modeling patterns
+├── src/infrastructure/CLAUDE.md     # Infrastructure patterns
+└── tests/CLAUDE.md                  # Testing patterns
 ```
 
-## Research Questions
+### Rules for CLAUDE.md Files
 
-We're actively investigating these questions as we build:
-- **What granularity of events provides the most value?** Too fine-grained creates noise, too coarse loses important context
-- **How do we balance automation vs. human input?** Some decisions require human context that AI can't infer
-- **What makes provenance data actionable?** Raw events aren't useful without good querying and presentation
+1. **Root CLAUDE.md** (this file): Quick reference, navigation, common patterns
+2. **Module CLAUDE.md**: Module-specific patterns that override or extend root
+3. **Always check both**: Module-specific first, then root for general patterns
 
-## Success Metrics
+### Creating Module-Specific CLAUDE.md
 
-We'll know we're succeeding when:
-- **Development teams maintain context** across sessions and team member changes
-- **AI assistance improves** through understanding of successful patterns
-- **Architectural decisions are traceable** with full reasoning and alternatives
-- **Code reviews leverage historical context** for better decision making
+```markdown
+# CLAUDE.md - [Module Name] Patterns
+
+> **Context**: This file extends the root CLAUDE.md with patterns specific to
+> [module]. **Parent**: [/CLAUDE.md](/CLAUDE.md)
+
+## Module-Specific Patterns
+
+[Patterns that are unique to this module]
+
+## Overrides
+
+[Any patterns from root that work differently here]
+```
+
+## 🚨 Critical Rules
+
+1. **NEVER put secrets in code** - Use environment variables
+2. **NEVER use `unwrap()` in production** - Always handle errors
+3. **NEVER let domain depend on infrastructure** - Dependencies flow inward
+4. **NEVER skip tests** - Test domain logic thoroughly
+5. **NEVER merge without review** - Even AI-generated code needs human review
+
+## 🔄 Development Workflow
+
+```mermaid
+graph LR
+    A[Read Task] --> B[Check/Write RFC]
+    B --> C[Update Session]
+    C --> D[Write Code]
+    D --> E[Write Tests]
+    E --> F[Update Docs]
+    F --> G[Review]
+    G --> H[Merge]
+```
+
+## 📊 Quick Metrics
+
+**Performance Targets**:
+
+- Tool execution: < 100ms P50, < 500ms P99
+- Memory per tool: < 10MB
+- Startup time: < 1 second
+
+**Code Quality**:
+
+- Test coverage: > 80% for domain logic
+- Zero clippy warnings
+- All public APIs documented
+
+## 🤝 Working with Claude Code
+
+### Best Practices
+
+1. **Start with context**: Always ensure `.claude/sessions/current.md` is
+   updated
+2. **Use commands**: Leverage `/create-mcp-tool` and `/write-rfc` commands
+3. **Reference patterns**: Point to specific pattern files when asking for
+   implementation
+4. **Verify understanding**: Ask Claude to explain the architecture before
+   implementing
+
+### Example Interaction
+
+```
+You: "Create a new MCP tool for code analysis"
+
+Better: "Using /create-mcp-tool, create a 'code-analyzer' tool that
+analyzes Rust code for complexity metrics. Follow our hexagonal
+architecture pattern from .claude/context/architecture.md"
+```
+
+## 🔗 Quick Links
+
+### Internal
+
+- [Project Vision](docs/VISION.md)
+- [Architecture Decision Records](.claude/knowledge/decisions/)
+- [Team Conventions](.claude/context/team-conventions.md)
+- [Current Sprint](.claude/context/project-state.md)
+
+### External
+
+- [MCP Specification](https://modelcontextprotocol.io/)
+- [rmcp Documentation](https://docs.rs/rmcp)
+- [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+
+## 📝 Remember
+
+> "Start with the simplest solution and iterate" - Anthropic
+>
+> "Once code is written using our API, it should never need to change" - Stripe
+>
+> "Documentation lives with code, not separate from it" - Google
 
 ---
 
-## Instructions for AI Assistants
-
-When working on this project:
-
-1. **Always reference the design docs** before making architectural decisions
-2. **Follow the established patterns** for error handling, async usage, and MCP integration
-3. **Create design documentation** for new components using the templates in `docs/design/meta/`
-4. **Update this CLAUDE.md file** as the project evolves and new patterns emerge
-5. **Consider provenance implications** - how will the code you're writing be tracked and understood?
-
-The ultimate goal is building a platform that makes itself more effective by learning from its own development process.
+**Need more detail?** Check `.claude/` directory  
+**Need to update patterns?** Submit an RFC  
+**Found a bug in this guide?** Update it and submit a PR!
