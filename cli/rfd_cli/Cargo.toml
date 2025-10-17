@@ -1,0 +1,42 @@
+[package]
+name = "rfd"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ada <ada@tapestry.dev>"]
+description = "CLI tool for managing RFD (Request for Discussion) documents"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/tapestry"
+keywords = ["rfd", "documentation", "cli", "markdown"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# CLI framework
+clap = { version = "4", features = ["derive", "cargo"] }
+
+# Templating
+minijinja = "2"
+
+# Front matter parsing
+gray_matter = "0.2"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+
+# Date/time handling
+chrono = { version = "0.4.38", features = ["serde"] }
+
+# Markdown parsing
+pulldown-cmark = "0.11"
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Colors and terminal output
+colored = "2"
+
+[[bin]]
+name = "rfd"
+path = "src/main.rs"
