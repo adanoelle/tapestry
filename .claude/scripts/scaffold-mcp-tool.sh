@@ -136,8 +136,8 @@ print_status "Phase 2: Scaffolding structure..."
 
 # Create tool crate directory
 TOOL_DIR="tools/$TOOL_MODULE"
-mkdir -p $TOOL_DIR/src/{domain,port,adapter}
-mkdir -p $TOOL_DIR/tests/{unit,integration}
+mkdir -p $TOOL_DIR/src
+mkdir -p $TOOL_DIR/tests  # Tests go directly in tests/, not in subdirectories
 mkdir -p $TOOL_DIR/benches
 
 print_status "Created directory structure"
@@ -517,15 +517,9 @@ print_status "Generated README.md"
 # Phase 4: Generate tests
 print_status "Phase 4: Generating tests..."
 
-# Generate unit tests
-cat > $TOOL_DIR/tests/unit/mod.rs << EOF
-//! Unit tests for $TOOL_NAME
-
-mod domain_tests;
-mod validation_tests;
-EOF
-
-cat > $TOOL_DIR/tests/unit/domain_tests.rs << EOF
+# Generate tests in tests/ directory (NOT in src/)
+# IMPORTANT: Following Rust best practices - tests go in tests/, not as #[cfg(test)] modules in src/
+cat > $TOOL_DIR/tests/domain_tests.rs << EOF
 use $TOOL_MODULE::{
     ${TOOL_STRUCT}Service, ${TOOL_STRUCT}Input, ${TOOL_STRUCT}Output, ${TOOL_STRUCT}Error
 };
@@ -562,7 +556,7 @@ fn should_handle_valid_input() {
 }
 EOF
 
-cat > $TOOL_DIR/tests/unit/validation_tests.rs << EOF
+cat > $TOOL_DIR/tests/validation_tests.rs << EOF
 use $TOOL_MODULE::{${TOOL_STRUCT}Input};
 
 #[test]
@@ -578,8 +572,8 @@ EOF
 
 print_status "Generated unit tests"
 
-# Generate integration test
-cat > $TOOL_DIR/tests/integration/${TOOL_MODULE}_test.rs << EOF
+# Generate integration test  
+cat > $TOOL_DIR/tests/${TOOL_MODULE}_integration_test.rs << EOF
 use $TOOL_MODULE::{create_tool, ${TOOL_STRUCT}Input, ${TOOL_STRUCT}Port};
 
 #[tokio::test]
