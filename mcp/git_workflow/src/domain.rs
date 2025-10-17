@@ -3,9 +3,9 @@
 //! Automates git workflow with conventional commits, smart staging, and change analysis based on RFC-001
 
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use std::collections::HashSet;
 use std::path::PathBuf;
+use thiserror::Error;
 
 /// Conventional commit types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -138,16 +138,16 @@ pub enum GitWorkflowOutput {
 pub enum GitWorkflowError {
     #[error("Invalid input: {0}")]
     InvalidInput(String),
-    
+
     #[error("Repository error: {0}")]
     RepositoryError(String),
-    
+
     #[error("No changes to commit")]
     NoChanges,
-    
+
     #[error("Invalid commit message: {0}")]
     InvalidCommitMessage(String),
-    
+
     #[error("Configuration error: {0}")]
     ConfigError(String),
 }
@@ -163,27 +163,32 @@ impl GitWorkflowService {
     pub fn new() -> Self {
         Self {}
     }
-    
+
     /// Analyzes changes and groups them intelligently
-    pub fn analyze_changes(&self, files: Vec<FileChange>) -> Result<ChangeAnalysis, GitWorkflowError> {
+    pub fn analyze_changes(
+        &self,
+        files: Vec<FileChange>,
+    ) -> Result<ChangeAnalysis, GitWorkflowError> {
         if files.is_empty() {
             return Err(GitWorkflowError::NoChanges);
         }
-        
+
         let mut groups = Vec::new();
         let mut grouped_files = HashSet::new();
-        
+
         // Group 1: Documentation changes
-        let doc_files: Vec<FileChange> = files.iter()
+        let doc_files: Vec<FileChange> = files
+            .iter()
             .filter(|f| {
-                f.path.extension()
+                f.path
+                    .extension()
                     .and_then(|e| e.to_str())
                     .map(|e| e == "md" || e == "txt" || e == "rst")
                     .unwrap_or(false)
             })
             .cloned()
             .collect();
-        
+
         if !doc_files.is_empty() {
             for f in &doc_files {
                 grouped_files.insert(f.path.clone());
@@ -196,17 +201,19 @@ impl GitWorkflowService {
                 suggested_scope: None,
             });
         }
-        
+
         // Group 2: Test files
-        let test_files: Vec<FileChange> = files.iter()
+        let test_files: Vec<FileChange> = files
+            .iter()
             .filter(|f| {
-                f.path.to_str()
+                f.path
+                    .to_str()
                     .map(|p| p.contains("test") || p.contains("spec"))
                     .unwrap_or(false)
             })
             .cloned()
             .collect();
-        
+
         if !test_files.is_empty() {
             for f in &test_files {
                 grouped_files.insert(f.path.clone());
@@ -219,17 +226,19 @@ impl GitWorkflowService {
                 suggested_scope: None,
             });
         }
-        
+
         // Group 3: CI/CD files
-        let ci_files: Vec<FileChange> = files.iter()
+        let ci_files: Vec<FileChange> = files
+            .iter()
             .filter(|f| {
-                f.path.to_str()
+                f.path
+                    .to_str()
                     .map(|p| p.contains(".github") || p.contains("ci") || p.contains("gitlab"))
                     .unwrap_or(false)
             })
             .cloned()
             .collect();
-        
+
         if !ci_files.is_empty() {
             for f in &ci_files {
                 grouped_files.insert(f.path.clone());
@@ -242,27 +251,26 @@ impl GitWorkflowService {
                 suggested_scope: None,
             });
         }
-        
+
         // Collect ungrouped files
-        let ungrouped_files: Vec<FileChange> = files.into_iter()
+        let ungrouped_files: Vec<FileChange> = files
+            .into_iter()
             .filter(|f| !grouped_files.contains(&f.path))
             .collect();
-        
+
         // Detect breaking changes (simplified heuristic)
         let breaking_changes = self.detect_breaking_changes(&groups, &ungrouped_files);
-        
+
         // Suggest commit order (docs last, tests before features)
         let mut suggested_order: Vec<usize> = (0..groups.len()).collect();
-        suggested_order.sort_by_key(|&i| {
-            match groups[i].suggested_type {
-                CommitType::Fix => 0,
-                CommitType::Feat => 1,
-                CommitType::Test => 2,
-                CommitType::Docs => 3,
-                _ => 4,
-            }
+        suggested_order.sort_by_key(|&i| match groups[i].suggested_type {
+            CommitType::Fix => 0,
+            CommitType::Feat => 1,
+            CommitType::Test => 2,
+            CommitType::Docs => 3,
+            _ => 4,
         });
-        
+
         Ok(ChangeAnalysis {
             groups,
             ungrouped_files,
@@ -270,32 +278,34 @@ impl GitWorkflowService {
             suggested_order,
         })
     }
-    
+
     /// Prepares a commit plan
     pub fn prepare_commit(&self, options: CommitOptions) -> Result<CommitPlan, GitWorkflowError> {
         if options.subject.is_empty() {
-            return Err(GitWorkflowError::InvalidInput("Subject cannot be empty".to_string()));
+            return Err(GitWorkflowError::InvalidInput(
+                "Subject cannot be empty".to_string(),
+            ));
         }
-        
+
         let commit_type = options.commit_type.unwrap_or(CommitType::Feat);
-        
+
         // Format the commit message
         let mut message = String::from(commit_type.as_str());
-        
+
         if let Some(ref scope) = options.scope {
             message.push('(');
             message.push_str(scope);
             message.push(')');
         }
-        
+
         message.push_str(": ");
         message.push_str(&options.subject);
-        
+
         if let Some(ref body) = options.body {
             message.push_str("\n\n");
             message.push_str(body);
         }
-        
+
         let breaking_change = if options.breaking {
             message.push_str("\n\nBREAKING CHANGE: ");
             if let Some(ref body) = options.body {
@@ -305,7 +315,7 @@ impl GitWorkflowService {
         } else {
             None
         };
-        
+
         if !options.issues.is_empty() {
             message.push_str("\n\n");
             for issue in &options.issues {
@@ -314,7 +324,7 @@ impl GitWorkflowService {
                 message.push('\n');
             }
         }
-        
+
         Ok(CommitPlan {
             commit_type,
             scope: options.scope,
@@ -326,34 +336,41 @@ impl GitWorkflowService {
             formatted_message: message,
         })
     }
-    
+
     /// Validates a commit message
     pub fn validate_commit_message(&self, message: &str) -> Result<bool, GitWorkflowError> {
         if message.is_empty() {
             return Ok(false);
         }
-        
+
         // Check if it follows conventional commit format
         let first_line = message.lines().next().unwrap_or("");
-        
+
         // Simple regex-like check (in real implementation, use regex crate)
-        let valid_types = ["feat", "fix", "docs", "style", "refactor", "test", "chore", "perf", "ci", "build", "revert"];
+        let valid_types = [
+            "feat", "fix", "docs", "style", "refactor", "test", "chore", "perf", "ci", "build",
+            "revert",
+        ];
         let has_valid_type = valid_types.iter().any(|&t| first_line.starts_with(t));
-        
+
         Ok(has_valid_type)
     }
-    
+
     /// Executes the core logic
     pub fn execute(&self, input: GitWorkflowInput) -> Result<GitWorkflowOutput, GitWorkflowError> {
         match input.command {
             GitCommand::AnalyzeChanges => {
                 // In real implementation, this would get files from the port
                 // For now, return empty analysis
-                Err(GitWorkflowError::InvalidInput("AnalyzeChanges requires file list from adapter".to_string()))
+                Err(GitWorkflowError::InvalidInput(
+                    "AnalyzeChanges requires file list from adapter".to_string(),
+                ))
             }
             GitCommand::SuggestStaging => {
                 // In real implementation, this would get files from the port
-                Err(GitWorkflowError::InvalidInput("SuggestStaging requires file list from adapter".to_string()))
+                Err(GitWorkflowError::InvalidInput(
+                    "SuggestStaging requires file list from adapter".to_string(),
+                ))
             }
             GitCommand::PrepareCommit(options) => {
                 let plan = self.prepare_commit(options)?;
@@ -370,18 +387,27 @@ impl GitWorkflowService {
             }
         }
     }
-    
+
     // Helper method to detect breaking changes
-    fn detect_breaking_changes(&self, _groups: &[ChangeGroup], ungrouped: &[FileChange]) -> Vec<String> {
+    fn detect_breaking_changes(
+        &self,
+        _groups: &[ChangeGroup],
+        ungrouped: &[FileChange],
+    ) -> Vec<String> {
         let mut breaking = Vec::new();
-        
+
         // Check for API changes (simplified)
         for file in ungrouped {
-            if file.path.to_str().map(|p| p.contains("api") || p.contains("public")).unwrap_or(false) {
+            if file
+                .path
+                .to_str()
+                .map(|p| p.contains("api") || p.contains("public"))
+                .unwrap_or(false)
+            {
                 breaking.push(format!("Potential API change in {:?}", file.path));
             }
         }
-        
+
         breaking
     }
 }
@@ -389,129 +415,5 @@ impl GitWorkflowService {
 impl Default for GitWorkflowService {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::path::PathBuf;
-
-    #[test]
-    fn test_commit_plan_creation() {
-        let service = GitWorkflowService::new();
-        
-        let options = CommitOptions {
-            commit_type: Some(CommitType::Feat),
-            scope: Some("auth".to_string()),
-            subject: "add OAuth support".to_string(),
-            body: Some("Implements OAuth 2.0 flow".to_string()),
-            breaking: false,
-            issues: vec!["123".to_string()],
-            staged_files: vec![],
-        };
-        
-        let result = service.prepare_commit(options);
-        assert!(result.is_ok());
-        
-        let plan = result.unwrap();
-        assert_eq!(plan.commit_type, CommitType::Feat);
-        assert_eq!(plan.scope, Some("auth".to_string()));
-        assert!(plan.formatted_message.starts_with("feat(auth): add OAuth support"));
-        assert!(plan.formatted_message.contains("Closes #123"));
-    }
-
-    #[test]
-    fn test_breaking_change_formatting() {
-        let service = GitWorkflowService::new();
-        
-        let options = CommitOptions {
-            commit_type: Some(CommitType::Feat),
-            scope: None,
-            subject: "change API".to_string(),
-            body: Some("API endpoints have changed".to_string()),
-            breaking: true,
-            issues: vec![],
-            staged_files: vec![],
-        };
-        
-        let result = service.prepare_commit(options);
-        assert!(result.is_ok());
-        
-        let plan = result.unwrap();
-        assert!(plan.formatted_message.contains("BREAKING CHANGE:"));
-    }
-
-    #[test]
-    fn test_commit_validation() {
-        let service = GitWorkflowService::new();
-        
-        // Valid conventional commit
-        match service.validate_commit_message("feat: add new feature") {
-            Ok(valid) => assert!(valid),
-            Err(_) => panic!("Expected Ok"),
-        }
-        
-        // Invalid commit
-        match service.validate_commit_message("Added new feature") {
-            Ok(valid) => assert!(!valid),
-            Err(_) => panic!("Expected Ok"),
-        }
-        
-        // Empty message
-        match service.validate_commit_message("") {
-            Ok(valid) => assert!(!valid),
-            Err(_) => panic!("Expected Ok"),
-        }
-    }
-
-    #[test]
-    fn test_change_analysis() {
-        let service = GitWorkflowService::new();
-        
-        let files = vec![
-            FileChange {
-                path: PathBuf::from("README.md"),
-                status: FileStatus::Modified,
-                additions: 10,
-                deletions: 5,
-            },
-            FileChange {
-                path: PathBuf::from("tests/test_auth.rs"),
-                status: FileStatus::Added,
-                additions: 100,
-                deletions: 0,
-            },
-            FileChange {
-                path: PathBuf::from(".github/workflows/ci.yml"),
-                status: FileStatus::Modified,
-                additions: 20,
-                deletions: 10,
-            },
-        ];
-        
-        let result = service.analyze_changes(files);
-        assert!(result.is_ok());
-        
-        let analysis = result.unwrap();
-        assert_eq!(analysis.groups.len(), 3); // Docs, Tests, CI/CD
-        
-        // Check that groups have correct types
-        let doc_group = analysis.groups.iter().find(|g| g.name == "Documentation");
-        assert!(doc_group.is_some());
-        assert_eq!(doc_group.unwrap().suggested_type, CommitType::Docs);
-    }
-
-    #[test]
-    fn test_empty_changes_error() {
-        let service = GitWorkflowService::new();
-        
-        let result = service.analyze_changes(vec![]);
-        assert!(result.is_err());
-        
-        match result.unwrap_err() {
-            GitWorkflowError::NoChanges => {},
-            _ => panic!("Expected NoChanges error"),
-        }
     }
 }

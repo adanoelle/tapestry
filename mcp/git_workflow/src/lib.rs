@@ -2,25 +2,15 @@
 //!
 //! This module implements an MCP tool that automates git workflow with conventional commits, smart staging, and change analysis.
 
-pub mod domain;
-pub mod port;
 pub mod adapter;
 pub mod config;
+pub mod domain;
+pub mod port;
 
 // Re-export main types from domain
 pub use domain::{
-    GitWorkflowService, 
-    GitWorkflowInput, 
-    GitWorkflowOutput, 
-    GitWorkflowError,
-    GitCommand,
-    CommitType,
-    CommitOptions,
-    CommitPlan,
-    ChangeAnalysis,
-    ChangeGroup,
-    FileChange,
-    FileStatus,
+    ChangeAnalysis, ChangeGroup, CommitOptions, CommitPlan, CommitType, FileChange, FileStatus,
+    GitCommand, GitWorkflowError, GitWorkflowInput, GitWorkflowOutput, GitWorkflowService,
 };
 
 // Re-export from other modules (will be implemented)

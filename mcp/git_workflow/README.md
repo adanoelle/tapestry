@@ -1,5 +1,9 @@
 # git-workflow
 
+> **Status**: ⏸️ Paused during Skills exploration
+>
+> This MCP tool development is temporarily on hold while we validate the Skills-first approach with lighter-weight CLI tools. The architecture and domain logic are solid and will serve as a reference for future MCP tool development.
+
 Automates git workflow with conventional commits, smart staging, and change analysis based on RFC-001
 
 ## Usage
