@@ -1,19 +1,20 @@
-# Tapestry: Developer-Centric MCP Tools
+# Tapestry: AI-Native Development Tools
 
 ## Vision
 
-Build a suite of complementary MCP (Model Context Protocol) tools that
-supercharge AI-assisted development workflows, starting simple and evolving
-based on real-world usage.
+Build a suite of AI-native development tools that supercharge AI-assisted
+workflows through a hybrid approach: lightweight CLI tools for Skills,
+deep-integration MCP tools for complex operations, and Skills that orchestrate
+both. Start simple, iterate based on real-world usage.
 
 ## Mission
 
-Create practical, high-quality MCP tools that:
+Create practical, high-quality AI-native tools that:
 
-- Solve real development pain points
-- Learn from actual usage patterns
-- Demonstrate S-tier engineering practices
-- Serve as a learning platform for advanced AI-assisted development
+- Solve real development pain points with the right tool for each job
+- Learn from actual usage patterns to inform architecture decisions
+- Demonstrate S-tier engineering practices across multiple paradigms
+- Serve as a learning platform for Skills, CLI tools, and MCP integration
 
 ## Core Philosophy
 
@@ -46,48 +47,79 @@ This project serves as:
 
 ## Initial Focus Areas
 
-### Phase 1: Foundation Tools (Current)
+### Phase 1: Skills-First Foundation (Current)
 
-Build essential MCP tools that enhance daily development:
+**Strategy**: Build lightweight CLI tools first to validate the Skills paradigm,
+then invest in heavier MCP tools once we understand the limitations.
 
-- Code review and analysis
-- Git workflow automation
-- Documentation generation
-- Test generation and validation
+**Current Tools**:
 
-### Phase 2: Intelligence Tools
+- **RFD CLI** (🚧 In Development): Documentation management for RFDs, RFCs, ADRs
+  - Agent-friendly (JSON output, idempotent operations, structured errors)
+  - Fast startup (< 10ms), single binary distribution
+  - Template-based document generation with Jinja2
+- **git-workflow MCP** (⏸️ Paused): Conventional commits and change analysis
+  - Solid hexagonal architecture for future reference
+  - Will resume after Skills validation
 
-Add context-aware capabilities:
+**Next Tools** (Choose based on Skills learnings):
+
+- Test generation and validation (CLI or MCP?)
+- Code review and analysis (likely MCP for deep integration)
+- Issue-to-RFD workflow (gh CLI integration)
+
+### Phase 2: Hybrid Maturity
+
+Once Skills approach is validated, expand strategically:
+
+**CLI Tools** (for Skills):
+
+- Documentation generators (RFDs, specs, READMEs)
+- Report formatters (test results, metrics, changelogs)
+- Quick validation tools (linting, format checking)
+
+**MCP Tools** (for deep integration):
 
 - Pattern recognition in codebases
 - Architectural decision tracking
+- Code analysis and refactoring
 - Development session memory
-- Cross-project learning
 
-### Phase 3: Provenance Platform
+**Skills** (orchestration layer):
 
-Eventually compose tools into a comprehensive platform:
+- Compose CLI + MCP tools for sophisticated workflows
+- Encode team conventions and best practices
+- Guide Claude through complex multi-step tasks
+
+### Phase 3: Intelligent Platform
+
+Eventually compose into a cohesive platform:
 
 - Full development history tracking
 - AI-human collaboration insights
 - Institutional knowledge preservation
 - Team productivity analytics
+- Seamless integration across all tool types
 
 ## Success Metrics
 
 ### Short-term (3 months)
 
-- 5+ working MCP tools in daily use
+- 3-5 working CLI tools used daily (RFD, test runner, formatter)
+- 5+ Skills orchestrating workflows
+- RFD tool dogfooded for all Tapestry documentation
+- 1-2 MCP tools demonstrating deep integration
 - Measurable productivity improvements
 - Clean, maintainable codebase
-- Active usage in real projects
 
 ### Medium-term (6 months)
 
-- 15+ tools covering major workflows
+- 10+ CLI tools covering common needs
+- 5+ MCP tools for complex operations
+- 15+ Skills encoding best practices
 - External developers using tools
-- Contributions to MCP ecosystem
-- Recognition for code quality
+- Contributions to Skills and MCP ecosystems
+- Recognition for hybrid architecture approach
 
 ### Long-term (12 months)
 
@@ -98,12 +130,49 @@ Eventually compose tools into a comprehensive platform:
 
 ## Technical Approach
 
-### Architecture
+### Three-Layer Architecture
+
+**Layer 1: Skills** (Orchestration)
+
+- Markdown files with YAML frontmatter
+- Guide Claude's behavior and tool selection
+- Encode team conventions and workflows
+- Token-efficient (few dozen tokens overhead)
+
+**Layer 2: CLI Tools** (Fast, Standalone)
+
+- Rust binaries with < 10ms startup time
+- Agent-friendly (JSON output, idempotent, non-interactive)
+- Single-binary distribution (no dependencies)
+- Perfect for Skills to invoke
+
+**Layer 3: MCP Tools** (Deep Integration)
 
 - Hexagonal architecture for each tool
-- Monolithic deployment for simplicity
-- Clear boundaries for future extraction
-- Shared infrastructure where sensible
+- Deep system integration (databases, complex state)
+- Stateful operations requiring protocol support
+- Used when CLI tools insufficient
+
+### Repository Structure
+
+```
+tapestry/
+├── cli/           # Standalone CLI tools for Skills
+├── mcp/           # MCP protocol-based tools
+├── skills/        # Skills that orchestrate both
+└── src/           # Shared registry (future)
+```
+
+### Tool Selection Criteria
+
+| Need                        | Use CLI Tool | Use MCP Tool |
+| --------------------------- | ------------ | ------------ |
+| Fast startup required       | ✅           | ❌           |
+| Invoked by Skills           | ✅           | ✅ (can be)  |
+| Complex stateful operations | ❌           | ✅           |
+| Deep system integration     | ❌           | ✅           |
+| Simple CRUD on files        | ✅           | ❌           |
+| Token efficiency critical   | ✅           | ❌           |
 
 ### Quality Bar
 
@@ -114,10 +183,11 @@ Eventually compose tools into a comprehensive platform:
 
 ### Development Process
 
-- RFC-driven design
-- Documentation-first approach
+- **RFD-driven design** (transitioning from RFC format)
+- Documentation-first approach (dogfooding our own tools)
+- Skills-first exploration (validate paradigm before heavy investment)
 - Continuous deployment
-- Real-world validation
+- Real-world validation through daily use
 
 ## Why This Matters
 
@@ -130,18 +200,21 @@ Eventually compose tools into a comprehensive platform:
 
 ### For the Community
 
-- Open-source MCP tools
-- Patterns for AI-native development
+- Open-source CLI tools, MCP tools, and Skills
+- Patterns for hybrid AI-native development
+- Practical examples of when to use Skills vs MCP
 - Bridge between AI and traditional development
-- Contribution to development evolution
+- Contribution to Skills and MCP ecosystems
 
 ## Next Steps
 
-1. Initialize Rust project structure
-2. Build first "hello-world" MCP tool
-3. Create tool registry system
-4. Ship first useful tool
-5. Iterate based on usage
+1. ✅ Restructure repository (cli/, mcp/, skills/)
+2. ✅ Initialize RFD CLI tool structure
+3. 🚧 Implement RFD CLI MVP (create, list, show, status)
+4. 🚧 Create rfd-manager Skill
+5. 📋 Dogfood RFD tool on Tapestry documentation
+6. 📋 Evaluate Skills limitations
+7. 📋 Resume MCP tool development based on learnings
 
 ---
 
