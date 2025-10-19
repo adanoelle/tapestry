@@ -1,5 +1,76 @@
-use anyhow::Result;
+//! RFD CLI - A tool for managing Request for Discussion (RFD) documents.
+//!
+//! # Overview
+//!
+//! This CLI tool helps teams manage technical documentation following the
+//! [Oxide Computer RFD format](https://rfd.shared.oxide.computer/). It provides
+//! structured commands for creating, updating, and managing RFD documents with
+//! an agent-friendly design.
+//!
+//! # Quick Start
+//!
+//! ```bash
+//! # Create a new RFD
+//! rfd create --title "My Proposal" --author "Alice <alice@example.com>"
+//!
+//! # List all RFDs
+//! rfd list
+//!
+//! # Update RFD status
+//! rfd status 1 --set review
+//!
+//! # Get JSON output for agents
+//! rfd list --format json
+//! ```
+//!
+//! # Architecture
+//!
+//! The CLI is organized into modules:
+//! - `commands` - Command implementations (create, list, show, etc.)
+//! - `document` - RFD data models and state machine
+//! - `config` - Configuration loading from .rfd/config.toml
+//! - `template` - Jinja2 template rendering
+//! - `fs` - File I/O with YAML frontmatter parsing
+//! - `output` - Formatting for pretty/JSON/quiet output
+//! - `error` - Error types with actionable suggestions
+//!
+//! # For Junior Developers
+//!
+//! This codebase demonstrates several important patterns:
+//! - **State Machines**: See `document::RfdState` for document lifecycle
+//! - **Error Handling**: Errors include suggestions for how to fix them
+//! - **Agent-Friendly Design**: JSON output, idempotent operations
+//! - **Template Rendering**: Dynamic document generation with Jinja2
+//!
+//! Start by reading `commands/create.rs` to see how a command is implemented
+//! end-to-end, then explore the other modules.
+//!
+//! # Design Principles
+//!
+//! 1. **Agent-First**: JSON output mode, structured errors, no prompts
+//! 2. **Idempotent**: Commands can be safely retried
+//! 3. **Fast**: < 10ms startup time for CLI invocations
+//! 4. **Simple**: Single binary, no dependencies to install
+//!
+//! # Exit Codes
+//!
+//! - `0` - Success
+//! - `1` - General error (file not found, I/O error, etc.)
+//! - `2` - Validation error (invalid RFD structure)
+//! - `3` - State transition error (invalid state change)
+
 use clap::{Parser, Subcommand};
+use std::process;
+
+mod commands;
+mod config;
+mod document;
+mod error;
+mod fs;
+mod output;
+mod template;
+
+use output::{Output, OutputFormat};
 
 /// CLI tool for managing RFD (Request for Discussion) documents
 #[derive(Parser, Debug)]
@@ -87,54 +158,46 @@ enum Commands {
     },
 }
 
-fn main() -> Result<()> {
+fn main() {
     let cli = Cli::parse();
 
-    match cli.command {
+    // Parse output format
+    let format = match cli.format.parse::<OutputFormat>() {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            process::exit(1);
+        }
+    };
+
+    let output = Output::new(format);
+
+    // Execute command
+    let result = match cli.command {
         Commands::Create {
             title,
             author,
             template,
-        } => {
-            println!("Creating RFD: {}", title);
-            println!("Author: {}", author);
-            println!("Template: {}", template);
-            println!("\n⚠️  Not yet implemented");
-        }
+        } => commands::create::execute(title, author, template, &output),
+
         Commands::List {
             status,
             author,
             limit,
-        } => {
-            println!("Listing RFDs");
-            if let Some(s) = status {
-                println!("Status filter: {}", s);
-            }
-            if let Some(a) = author {
-                println!("Author filter: {}", a);
-            }
-            if let Some(l) = limit {
-                println!("Limit: {}", l);
-            }
-            println!("\n⚠️  Not yet implemented");
-        }
-        Commands::Show { id } => {
-            println!("Showing RFD: {}", id);
-            println!("\n⚠️  Not yet implemented");
-        }
-        Commands::Status { id, set } => {
-            println!("Updating RFD {} status to: {}", id, set);
-            println!("\n⚠️  Not yet implemented");
-        }
-        Commands::Update { id, field, value } => {
-            println!("Updating RFD {} field '{}' to: {}", id, field, value);
-            println!("\n⚠️  Not yet implemented");
-        }
-        Commands::Validate { id } => {
-            println!("Validating RFD: {}", id);
-            println!("\n⚠️  Not yet implemented");
-        }
-    }
+        } => commands::list::execute(status, author, limit, &output),
 
-    Ok(())
+        Commands::Show { id } => commands::show::execute(id, &output),
+
+        Commands::Status { id, set } => commands::status::execute(id, set, &output),
+
+        Commands::Update { id, field, value } => commands::update::execute(id, field, value, &output),
+
+        Commands::Validate { id } => commands::validate::execute(id, &output),
+    };
+
+    // Handle errors
+    if let Err(e) = result {
+        output.error(&e);
+        process::exit(e.exit_code());
+    }
 }
