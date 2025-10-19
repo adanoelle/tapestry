@@ -211,11 +211,7 @@ impl Output {
             rfd.title
         );
 
-        println!(
-            "  {} {}",
-            "Authors:".bright_black(),
-            rfd.authors.join(", ")
-        );
+        println!("  {} {}", "Authors:".bright_black(), rfd.authors.join(", "));
 
         println!(
             "  {} {}  {} {}",
@@ -251,10 +247,7 @@ impl Output {
                 println!();
 
                 println!("{}", "Metadata".bold().underline());
-                println!(
-                    "  {:<12} {}",
-                    "Authors:", doc.metadata.authors.join(", ")
-                );
+                println!("  {:<12} {}", "Authors:", doc.metadata.authors.join(", "));
                 println!(
                     "  {:<12} {}",
                     "State:",
@@ -262,11 +255,13 @@ impl Output {
                 );
                 println!(
                     "  {:<12} {}",
-                    "Created:", doc.metadata.created.format("%Y-%m-%d %H:%M UTC")
+                    "Created:",
+                    doc.metadata.created.format("%Y-%m-%d %H:%M UTC")
                 );
                 println!(
                     "  {:<12} {}",
-                    "Updated:", doc.metadata.updated.format("%Y-%m-%d %H:%M UTC")
+                    "Updated:",
+                    doc.metadata.updated.format("%Y-%m-%d %H:%M UTC")
                 );
 
                 if !doc.metadata.tags.is_empty() {
@@ -305,11 +300,7 @@ impl Output {
         match self.format {
             OutputFormat::Pretty => {
                 if issues.is_empty() {
-                    println!(
-                        "{} RFD {} is valid",
-                        "✓".green().bold(),
-                        rfd_id.bold()
-                    );
+                    println!("{} RFD {} is valid", "✓".green().bold(), rfd_id.bold());
                 } else {
                     println!(
                         "{} RFD {} has {} issue(s)",
@@ -426,9 +417,15 @@ mod tests {
 
     #[test]
     fn test_output_format_parsing() {
-        assert_eq!("pretty".parse::<OutputFormat>().unwrap(), OutputFormat::Pretty);
+        assert_eq!(
+            "pretty".parse::<OutputFormat>().unwrap(),
+            OutputFormat::Pretty
+        );
         assert_eq!("json".parse::<OutputFormat>().unwrap(), OutputFormat::Json);
-        assert_eq!("quiet".parse::<OutputFormat>().unwrap(), OutputFormat::Quiet);
+        assert_eq!(
+            "quiet".parse::<OutputFormat>().unwrap(),
+            OutputFormat::Quiet
+        );
         assert!("invalid".parse::<OutputFormat>().is_err());
     }
 }

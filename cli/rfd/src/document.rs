@@ -283,7 +283,12 @@ pub struct RfdDocument {
 
 impl RfdDocument {
     /// Create new RFD document
-    pub fn new(number: RfdNumber, metadata: RfdMetadata, content: String, path: std::path::PathBuf) -> Self {
+    pub fn new(
+        number: RfdNumber,
+        metadata: RfdMetadata,
+        content: String,
+        path: std::path::PathBuf,
+    ) -> Self {
         Self {
             number,
             metadata,
@@ -302,7 +307,8 @@ impl RfdDocument {
     /// For junior developers: This converts a title like "My Great Idea!"
     /// into a slug like "my-great-idea" suitable for filenames and URLs.
     pub fn slug(&self) -> String {
-        self.metadata.title
+        self.metadata
+            .title
             .to_lowercase()
             // Step 1: Convert non-alphanumeric chars to hyphens
             // "My Great Idea!" → "my-great-idea-"
@@ -339,7 +345,8 @@ impl RfdDocument {
         let required_sections = ["Summary", "Motivation"];
         for section in required_sections {
             if !self.content.contains(&format!("# {}", section))
-                && !self.content.contains(&format!("## {}", section)) {
+                && !self.content.contains(&format!("## {}", section))
+            {
                 issues.push(format!("Missing required section: {}", section));
             }
         }

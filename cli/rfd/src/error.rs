@@ -69,10 +69,7 @@ pub enum RfdError {
     NotFound { id: String },
 
     #[error("Invalid state transition from '{current}' to '{target}'")]
-    InvalidTransition {
-        current: RfdState,
-        target: RfdState,
-    },
+    InvalidTransition { current: RfdState, target: RfdState },
 
     #[error("Validation failed")]
     ValidationFailed { issues: Vec<String> },
@@ -139,10 +136,7 @@ impl RfdError {
 
                 ErrorResponse {
                     error: "INVALID_TRANSITION".to_string(),
-                    message: format!(
-                        "Cannot transition from '{}' to '{}'",
-                        current, target
-                    ),
+                    message: format!("Cannot transition from '{}' to '{}'", current, target),
                     details: Some(serde_json::json!({
                         "current_state": current.to_string(),
                         "target_state": target.to_string(),
@@ -295,13 +289,7 @@ mod tests {
 
     #[test]
     fn test_exit_codes() {
-        assert_eq!(
-            RfdError::ValidationFailed {
-                issues: vec![]
-            }
-            .exit_code(),
-            2
-        );
+        assert_eq!(RfdError::ValidationFailed { issues: vec![] }.exit_code(), 2);
         assert_eq!(
             RfdError::InvalidTransition {
                 current: RfdState::Draft,

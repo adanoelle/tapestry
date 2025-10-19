@@ -190,7 +190,9 @@ fn main() {
 
         Commands::Status { id, set } => commands::status::execute(id, set, &output),
 
-        Commands::Update { id, field, value } => commands::update::execute(id, field, value, &output),
+        Commands::Update { id, field, value } => {
+            commands::update::execute(id, field, value, &output)
+        }
 
         Commands::Validate { id } => commands::validate::execute(id, &output),
     };

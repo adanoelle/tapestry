@@ -8,9 +8,9 @@ pub fn execute(id: String, set: String, output: &Output) -> Result<(), RfdError>
     let config = RfdConfig::load()?;
 
     // Parse target state
-    let target_state: RfdState = set.parse().map_err(|e| RfdError::InvalidInput {
-        message: e,
-    })?;
+    let target_state: RfdState = set
+        .parse()
+        .map_err(|e| RfdError::InvalidInput { message: e })?;
 
     // Find and load RFD
     let path = find_rfd_by_id(&config, &id)?;

@@ -78,15 +78,18 @@ pub fn find_all_rfds(config: &RfdConfig) -> Result<Vec<PathBuf>, RfdError> {
         return Ok(Vec::new());
     }
 
-    let entries = fs::read_dir(&rfd_dir).map_err(|e| file_error(format!(
-        "Failed to read RFD directory '{}': {}",
-        rfd_dir.display(),
-        e
-    )))?;
+    let entries = fs::read_dir(&rfd_dir).map_err(|e| {
+        file_error(format!(
+            "Failed to read RFD directory '{}': {}",
+            rfd_dir.display(),
+            e
+        ))
+    })?;
 
     let mut files = Vec::new();
     for entry in entries {
-        let entry = entry.map_err(|e| file_error(format!("Failed to read directory entry: {}", e)))?;
+        let entry =
+            entry.map_err(|e| file_error(format!("Failed to read directory entry: {}", e)))?;
         let path = entry.path();
 
         // Only include markdown files
@@ -152,11 +155,8 @@ pub fn next_rfd_number(config: &RfdConfig) -> Result<u32, RfdError> {
 
 /// Load an RFD document from file
 pub fn load_rfd(path: &Path) -> Result<RfdDocument, RfdError> {
-    let content = fs::read_to_string(path).map_err(|e| file_error(format!(
-        "Failed to read file '{}': {}",
-        path.display(),
-        e
-    )))?;
+    let content = fs::read_to_string(path)
+        .map_err(|e| file_error(format!("Failed to read file '{}': {}", path.display(), e)))?;
 
     parse_rfd(&content, path)
 }
@@ -182,7 +182,10 @@ pub fn parse_rfd(content: &str, path: &Path) -> Result<RfdDocument, RfdError> {
 
     // Extract number from filename
     let number = extract_rfd_number(path).ok_or_else(|| RfdError::FileError {
-        message: format!("Could not extract RFD number from filename: {}", path.display()),
+        message: format!(
+            "Could not extract RFD number from filename: {}",
+            path.display()
+        ),
     })?;
 
     Ok(RfdDocument::new(
@@ -198,11 +201,13 @@ pub fn save_rfd(doc: &RfdDocument, config: &RfdConfig) -> Result<(), RfdError> {
     // Ensure RFD directory exists
     let rfd_dir = config.rfd_directory();
     if !rfd_dir.exists() {
-        fs::create_dir_all(&rfd_dir).map_err(|e| file_error(format!(
-            "Failed to create directory '{}': {}",
-            rfd_dir.display(),
-            e
-        )))?;
+        fs::create_dir_all(&rfd_dir).map_err(|e| {
+            file_error(format!(
+                "Failed to create directory '{}': {}",
+                rfd_dir.display(),
+                e
+            ))
+        })?;
     }
 
     // Build file path
@@ -244,18 +249,22 @@ pub fn update_rfd_metadata(path: &Path, metadata: &RfdMetadata) -> Result<(), Rf
 fn write_file_atomic(path: &Path, content: &str) -> Result<(), RfdError> {
     // Write to temp file first
     let temp_path = path.with_extension("tmp");
-    fs::write(&temp_path, content).map_err(|e| file_error(format!(
-        "Failed to write temp file '{}': {}",
-        temp_path.display(),
-        e
-    )))?;
+    fs::write(&temp_path, content).map_err(|e| {
+        file_error(format!(
+            "Failed to write temp file '{}': {}",
+            temp_path.display(),
+            e
+        ))
+    })?;
 
     // Rename (atomic on POSIX systems)
-    fs::rename(&temp_path, path).map_err(|e| file_error(format!(
-        "Failed to rename temp file to '{}': {}",
-        path.display(),
-        e
-    )))?;
+    fs::rename(&temp_path, path).map_err(|e| {
+        file_error(format!(
+            "Failed to rename temp file to '{}': {}",
+            path.display(),
+            e
+        ))
+    })?;
 
     Ok(())
 }
@@ -301,7 +310,9 @@ fn extract_yaml_frontmatter(content: &str) -> Result<String, RfdError> {
 /// Check if an RFD file exists for the given number
 pub fn rfd_exists(config: &RfdConfig, number: u32) -> Result<bool, RfdError> {
     let files = find_all_rfds(config)?;
-    Ok(files.iter().any(|path| extract_rfd_number(path) == Some(number)))
+    Ok(files
+        .iter()
+        .any(|path| extract_rfd_number(path) == Some(number)))
 }
 
 #[cfg(test)]
@@ -310,18 +321,12 @@ mod tests {
 
     #[test]
     fn test_extract_rfd_number() {
-        assert_eq!(
-            extract_rfd_number(Path::new("0001-test.md")),
-            Some(1)
-        );
+        assert_eq!(extract_rfd_number(Path::new("0001-test.md")), Some(1));
         assert_eq!(
             extract_rfd_number(Path::new("0042-feature-proposal.md")),
             Some(42)
         );
-        assert_eq!(
-            extract_rfd_number(Path::new("test.md")),
-            None
-        );
+        assert_eq!(extract_rfd_number(Path::new("test.md")), None);
     }
 
     #[test]

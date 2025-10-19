@@ -126,8 +126,9 @@ impl TemplateEngine {
                 if let Some(name) = entry_path.file_name().and_then(|s| s.to_str()) {
                     if name.ends_with(".jinja") {
                         // Template name without .jinja extension
-                        let template_name =
-                            name.trim_end_matches(".md.jinja").trim_end_matches(".jinja");
+                        let template_name = name
+                            .trim_end_matches(".md.jinja")
+                            .trim_end_matches(".jinja");
 
                         let content = std::fs::read_to_string(&entry_path).map_err(|e| {
                             RfdError::TemplateError {
@@ -187,17 +188,27 @@ impl TemplateEngine {
     ///
     /// The key insight: we create a new Environment each time, which is fine for
     /// CLI performance and avoids complex lifetime management.
-    pub fn render(&self, template_name: &str, number: u32, metadata: &RfdMetadata) -> Result<String, RfdError> {
+    pub fn render(
+        &self,
+        template_name: &str,
+        number: u32,
+        metadata: &RfdMetadata,
+    ) -> Result<String, RfdError> {
         // Get template content from our HashMap
-        let template_content = self.templates.get(template_name).ok_or_else(|| {
-            RfdError::TemplateError {
-                message: format!(
-                    "Template '{}' not found. Available templates: {}",
-                    template_name,
-                    self.templates.keys().map(|k| k.as_str()).collect::<Vec<_>>().join(", ")
-                ),
-            }
-        })?;
+        let template_content =
+            self.templates
+                .get(template_name)
+                .ok_or_else(|| RfdError::TemplateError {
+                    message: format!(
+                        "Template '{}' not found. Available templates: {}",
+                        template_name,
+                        self.templates
+                            .keys()
+                            .map(|k| k.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
+                })?;
 
         // Create a fresh Environment for this render
         // For junior developers: This avoids lifetime issues! Each render gets its own
@@ -209,11 +220,11 @@ impl TemplateEngine {
                 message: format!("Failed to parse template '{}': {}", template_name, e),
             })?;
 
-        let template = env.get_template(template_name).map_err(|e| {
-            RfdError::TemplateError {
+        let template = env
+            .get_template(template_name)
+            .map_err(|e| RfdError::TemplateError {
                 message: format!("Failed to get template '{}': {}", template_name, e),
-            }
-        })?;
+            })?;
 
         // Build context from metadata
         let ctx = TemplateContext::from((number, metadata));
