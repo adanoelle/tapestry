@@ -5,7 +5,7 @@
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange?logo=rust)](https://www.rust-lang.org/)
 [![Nix](https://img.shields.io/badge/nix-flake-7EBAE4?logo=nixos&logoColor=white)](https://nixos.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-5865F2)](https://modelcontextprotocol.io/)
-[![CI](https://img.shields.io/github/actions/workflow/status/adanoelle/tapestry/ci.yml?branch=main&label=CI)](https://github.com/adanoelle/tapestry/actions)
+[![CI](https://github.com/adanoelle/tapestry/actions/workflows/ci.yml/badge.svg)](https://github.com/adanoelle/tapestry/actions/workflows/ci.yml)
 [![codecov](https://img.shields.io/codecov/c/github/adanoelle/tapestry?logo=codecov)](https://codecov.io/gh/adanoelle/tapestry)
 
 ---
