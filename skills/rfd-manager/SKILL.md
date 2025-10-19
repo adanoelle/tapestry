@@ -282,7 +282,7 @@ rfd update 003 --field discussion --value "$(gh issue view 123 --json url -q .ur
 cargo run --bin rfd -- --help
 
 # If not, the tool may not be built yet
-cd cli/rfd_cli && cargo build
+cd cli/rfd && cargo build
 ```
 
 **Invalid state transition**:

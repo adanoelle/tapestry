@@ -43,7 +43,7 @@ cat docs/VISION.md
 ```
 tapestry/
 ├── cli/                   # Standalone CLI tools (for Skills)
-│   └── rfd_cli/          # RFD document manager (current focus)
+│   └── rfd/              # RFD document manager (current focus)
 │       ├── src/
 │       │   └── main.rs   # CLI entry point
 │       ├── Cargo.toml
@@ -351,7 +351,7 @@ You: "Create a new tool for managing documentation"
 
 Better: "Build a CLI tool for managing RFD documents. Should support
 create, list, show, and status commands with JSON output. Follow the
-pattern from cli/rfd_cli and see docs/VISION.md for our hybrid approach."
+pattern from cli/rfd and see docs/VISION.md for our hybrid approach."
 
 # Understanding architecture
 You: "Why do we have both CLI and MCP tools?"

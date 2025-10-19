@@ -247,7 +247,7 @@ colored = "2"                                        # Terminal colors
 Simple, flat structure (no hexagonal architecture needed):
 
 ```
-cli/rfd_cli/
+cli/rfd/
 ├── src/
 │   ├── main.rs           # CLI entry point, clap setup
 │   ├── commands/         # Command implementations
