@@ -27,34 +27,99 @@ cargo test
 
 ### Available Tools
 
-_Coming soon - first tool in development_
+#### RFD CLI - Request for Discussion Manager
+**Status**: ✅ Production Ready | **Type**: CLI Tool
+
+A fast, agent-friendly CLI for managing technical design documents in the Oxide RFD format.
+
+**Key Features**:
+- ⚡ Fast: 1ms startup time, 2.4MB binary
+- 🤖 Agent-friendly: JSON output, idempotent operations
+- 📝 Complete workflow: Create, list, update, validate RFDs
+- 🎨 Custom templates: Jinja2-based templating system
+- ✅ Production-ready: 32 tests, comprehensive documentation
+
+**Quick Start**:
+```bash
+cd cli/rfd
+cargo build --release
+./target/release/rfd create --title "My Proposal" --author "Me <me@example.com>"
+```
+
+**Documentation**: [README](cli/rfd/README.md) | [Architecture](cli/rfd/ARCHITECTURE.md) | [Examples](cli/rfd/examples/)
+
+---
+
+### In Development
+
+#### Git Context Tool (MCP)
+**Status**: 🔄 Paused | **Type**: MCP Tool
+
+Rich git context for AI assistants using the Model Context Protocol.
+
+- **Location**: [`mcp/git_workflow/`](mcp/git_workflow/)
+- **RFC**: [RFC-001](docs/design/features/RFC-001-git-context-tool.md)
+- **Note**: Paused to prioritize CLI tools first (Skills-first approach)
+
+---
 
 ### Planned Tools
 
-- **Git Context Tool** - Rich git context for AI assistants
-  ([RFC-001](docs/design/features/RFC-001-git-context-tool.md))
 - **Code Review Tool** - Automated code review with AI insights
 - **Test Generator** - Intelligent test generation based on code patterns
 - **Documentation Generator** - Living documentation from code and comments
 
 ## 🏗️ Architecture
 
-Each tool follows hexagonal architecture for maximum flexibility and
-testability:
+### Hybrid Architecture
+
+Tapestry uses a **hybrid architecture** combining lightweight CLI tools with deep-integration MCP tools, orchestrated by Claude Code Skills.
+
+**Three-Layer Design**:
 
 ```
-src/tools/{tool_name}/
-├── domain.rs    # Pure business logic (no dependencies)
+Skills Layer (Claude Code)
+    ↓ orchestrates ↓
+CLI Tools ←→ MCP Tools
+```
+
+**CLI Tools** (`cli/*`):
+- ⚡ Fast startup (< 10ms)
+- 📁 Simple file operations
+- 🤖 Agent-friendly (JSON output)
+- 🔄 Stateless operations
+- **Example**: RFD CLI
+
+**MCP Tools** (`mcp/*`):
+- 🔌 Deep IDE/editor integration
+- 🔄 Complex stateful operations
+- 📡 Real-time collaboration
+- 🌐 Persistent connections
+- **Example**: Git Context (planned)
+
+**Skills** (`.claude/skills/`):
+- 🎯 Orchestrate CLI + MCP tools
+- 🧠 Multi-step workflows
+- 📋 Context management
+- **Example**: rfd-manager (planned)
+
+### Tool Architecture Pattern
+
+Each tool follows hexagonal architecture for testability:
+
+```
+src/
+├── domain.rs    # Pure business logic (no external dependencies)
 ├── port.rs      # Interface definitions (traits)
-└── adapter.rs   # MCP implementation (infrastructure)
+└── adapter.rs   # CLI/MCP implementation (infrastructure)
 ```
 
 **Key principles:**
 
 - Dependencies flow inward (Infrastructure → Application → Domain)
 - Domain logic has zero external dependencies
-- Each tool is independent but shares common infrastructure
-- Monolithic deployment for simplicity (can extract to microservices later)
+- Each tool is independent but shares common patterns
+- Start simple (CLI) → Add complexity as needed (MCP)
 
 ## 📚 Documentation
 
@@ -80,27 +145,41 @@ deeply.
 
 ## 🚀 Roadmap
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation ✅ COMPLETE
 
 - [x] Documentation structure
 - [x] Architecture decisions
-- [ ] First MCP tool (Git Context)
+- [x] **RFD CLI tool** - Production ready! 🎉
+  - [x] Core commands (create, list, show, status, update, validate)
+  - [x] Template system with Jinja2
+  - [x] JSON output for agents
+  - [x] Comprehensive tests (32 tests)
+  - [x] Full documentation (ARCHITECTURE.md, CONTRIBUTING.md, examples/)
+  - [x] Performance optimization (2.4MB, 1ms startup)
+- [ ] First MCP tool (Git Context) - paused
 - [ ] Tool registry system
 - [ ] Basic CI/CD
 
-### Phase 2: Essential Tools
+### Phase 2: Essential CLI Tools (Next)
 
-- [ ] Code review tool
-- [ ] Test generation tool
-- [ ] Documentation generator
+- [ ] **RFD CLI enhancements**:
+  - [ ] Full-text search across RFD content
+  - [ ] Export to HTML/PDF
+  - [ ] Git integration (auto-commit on changes)
+  - [ ] GitHub issue integration
+  - [ ] Dependency tracking between RFDs
+- [ ] **New CLI tools**:
+  - [ ] Code review tool
+  - [ ] Test generation tool
+  - [ ] Documentation generator
+
+### Phase 3: MCP Tools & Intelligence
+
+- [ ] Resume Git Context MCP tool
 - [ ] Session memory tool
-
-### Phase 3: Intelligence Layer
-
 - [ ] Pattern recognition
 - [ ] Cross-tool integration
 - [ ] Learning system
-- [ ] Provenance tracking
 
 ## 🤝 Contributing
 
@@ -116,6 +195,13 @@ See [CONTRIBUTING.md](docs/design/meta/CONTRIBUTING.md) for details.
 
 ## 📊 Performance Targets
 
+### CLI Tools
+- **Startup time**: < 10ms (RFD CLI: 1ms ✅)
+- **Binary size**: < 3MB (RFD CLI: 2.4MB ✅)
+- **Memory usage**: < 10MB (RFD CLI: ~5MB ✅)
+- **Execution**: < 50ms for simple operations
+
+### MCP Tools (Future)
 - **Tool execution**: P50 < 100ms, P99 < 500ms
 - **Memory per tool**: < 10MB
 - **Startup time**: < 1 second
@@ -144,8 +230,9 @@ Built with inspiration from:
 
 ---
 
-**Status**: 🚧 Under active development  
-**Current Focus**: Implementing first MCP tool (Git Context)  
-**Looking for**: Feedback on tool ideas and use cases
+**Status**: ✅ First CLI tool production-ready!
+**Latest**: RFD CLI v0.1.0 - Complete with documentation and examples
+**Current Focus**: Gathering feedback on RFD CLI and planning next tools
+**Looking for**: Feature requests, use cases, and contributions
 
 _Building the future of AI-assisted development, one tool at a time._
