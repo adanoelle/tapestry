@@ -2,12 +2,119 @@
 
 ## Overview
 
-Tapestry is a monolithic suite of MCP (Model Context Protocol) tools designed to
-enhance AI-assisted development workflows. Each tool within Tapestry follows
-hexagonal architecture while the overall system maintains monolithic simplicity
-for easier deployment and management.
+Tapestry uses a **hybrid three-layer architecture** designed to provide the right tool
+for each job in AI-assisted development workflows:
 
-## Architectural Pattern: Hexagonal Architecture
+- **Layer 1: Skills** (Orchestration) - Lightweight markdown files that guide Claude
+- **Layer 2: CLI Tools** (Fast, Standalone) - Rust binaries for simple, agent-friendly operations
+- **Layer 3: MCP Tools** (Deep Integration) - Complex tools using hexagonal architecture for stateful operations
+
+**Current Approach**: Skills-first validation. Build lightweight CLI tools first to understand
+the Skills paradigm before investing in heavier MCP tools.
+
+## Three-Layer Hybrid Architecture
+
+###Layer 1: Skills (Orchestration)
+
+**Purpose**: Guide Claude's behavior and tool selection through documentation.
+
+**Implementation**:
+- Markdown files with YAML frontmatter in `skills/` directory
+- Token-efficient (few dozen tokens per skill at startup)
+- Model-invoked (Claude decides when to use them)
+- Composable (multiple skills work together)
+
+**Example Structure**:
+```yaml
+---
+name: rfd-manager
+description: Manage RFD documents with structured operations
+tools: Bash, Read, Write
+---
+
+# RFD Management Tool
+
+Guide Claude through RFD document workflows...
+```
+
+**When to Use**:
+- Encode team conventions and workflows
+- Orchestrate multiple tools
+- Provide context-specific guidance
+- Compose CLI + MCP tools for complex workflows
+
+### Layer 2: CLI Tools (Fast, Standalone)
+
+**Purpose**: Provide fast, agent-friendly tools that Skills can invoke.
+
+**Implementation**:
+- Rust binaries in `cli/` directory
+- < 10ms startup time
+- JSON output mode for parsing
+- Idempotent operations
+- Non-interactive (no prompts)
+- Actionable error messages
+
+**Architecture Pattern**:
+```rust
+// Simple, flat structure
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+
+    #[arg(short, long, default_value = "pretty")]
+    format: String,  // pretty, json, quiet
+}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+    // Execute and output JSON if requested
+}
+```
+
+**When to Use**:
+- Fast startup required (< 10ms)
+- Simple file CRUD operations
+- Stateless operations
+- Agent invocation from Skills
+- Token efficiency critical
+
+### Layer 3: MCP Tools (Deep Integration)
+
+**Purpose**: Handle complex, stateful operations requiring deep system integration.
+
+**Implementation**:
+- Hexagonal architecture in `mcp/` directory
+- Pure domain logic (testable, maintainable)
+- Protocol-based communication
+- Stateful operations
+- Complex business rules
+
+**Architecture Pattern** (detailed below in Hexagonal Architecture section)
+
+**When to Use**:
+- Complex stateful operations
+- Deep system integration (databases, APIs)
+- Long-running processes
+- Protocol-based communication needed
+- When CLI tools are insufficient
+
+## Tool Selection Decision Matrix
+
+| Need | CLI Tool | MCP Tool | Skill |
+|------|----------|----------|-------|
+| Startup < 10ms | ✅ | ❌ | ✅ |
+| Agent invokes | ✅ | ✅ | ✅ |
+| Stateful/complex | ❌ | ✅ | N/A |
+| File CRUD | ✅ | ❌ | N/A |
+| Orchestrate workflows | ❌ | ❌ | ✅ |
+| Token efficiency | ✅ | ❌ | ✅ |
+| Deep integration | ❌ | ✅ | N/A |
+
+## Architectural Pattern: Hexagonal Architecture (for MCP Tools)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -88,6 +195,17 @@ Each tool is a self-contained module with:
 
 ### Technology Choices
 
+**CLI Tools**:
+| Component      | Technology          | Rationale                               |
+| -------------- | ------------------- | --------------------------------------- |
+| Language       | Rust                | Fast startup, single binary, memory safety |
+| CLI Framework  | clap v4             | Derive API, automatic validation, help generation |
+| Templating     | minijinja           | Jinja2-compatible, runtime loading, minimal deps |
+| Front Matter   | gray_matter         | Purpose-built for markdown + YAML parsing |
+| Date/Time      | chrono              | Comprehensive datetime with serde support |
+| Markdown       | pulldown-cmark      | Fastest Rust parser, powers rustdoc |
+
+**MCP Tools**:
 | Component      | Technology          | Rationale                               |
 | -------------- | ------------------- | --------------------------------------- |
 | Language       | Rust                | Performance, safety, good async support |
@@ -97,7 +215,13 @@ Each tool is a self-contained module with:
 | Serialization  | serde + serde_json  | De facto standard, MCP uses JSON        |
 | Testing        | built-in + proptest | Property-based testing for robustness   |
 | Logging        | tracing             | Structured, async-aware logging         |
-| Metrics        | prometheus          | Industry standard, good ecosystem       |
+
+**Skills**:
+| Component      | Technology          | Rationale                               |
+| -------------- | ------------------- | --------------------------------------- |
+| Format         | Markdown + YAML     | Simple, readable, Claude-native         |
+| Location       | skills/ directory   | Version controlled, shareable           |
+| Tools Access   | Subset control      | Security through capability restriction |
 
 ## Tool Architecture Pattern
 

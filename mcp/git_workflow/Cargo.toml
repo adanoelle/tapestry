@@ -1,0 +1,26 @@
+[package]
+name = "git_workflow"
+version = "0.1.0"
+edition = "2021"
+authors = ["Tapestry Team"]
+description = "Automates git workflow with conventional commits, smart staging, and change analysis based on RFC-001"
+license = "MIT"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+
+# Tool-specific dependencies
+# git2 = { workspace = true } # Temporarily disabled for testing
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }
+criterion = { workspace = true }
+mockall = { workspace = true }

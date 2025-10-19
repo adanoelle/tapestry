@@ -6,97 +6,151 @@
 
 ## 🎯 What is Tapestry?
 
-Tapestry is a monolithic suite of MCP (Model Context Protocol) tools for
-AI-assisted development, built with Rust using hexagonal architecture.
+Tapestry is a suite of AI-native development tools using a **hybrid architecture**:
+lightweight CLI tools for Skills, deep-integration MCP tools for complex operations,
+and Skills that orchestrate both.
 
 **Quick Context**:
 
-- **Language**: Rust (async-first with Tokio)
-- **Architecture**: Hexagonal (Ports & Adapters)
-- **Deployment**: Monolithic (for now)
-- **MCP Library**: rmcp
-- **Key Goal**: Build tools that enhance AI-assisted development workflows
+- **Language**: Rust for both CLI and MCP tools
+- **Architecture**: Three layers (Skills → CLI + MCP)
+- **Approach**: Skills-first (validate before heavy MCP investment)
+- **Current Focus**: RFD CLI tool + rfd-manager Skill
+- **Key Goal**: Right tool for each job in AI-assisted workflows
 
 ## 🚀 Quick Commands
 
 ```bash
-# Create a new MCP tool
-/create-mcp-tool "tool-name" "description"
+# Build and run RFD CLI
+cargo run --bin rfd -- --help
 
-# Write an RFC for a feature
-/write-rfc "Feature Name" "Problem to solve"
+# Run workspace checks
+cargo check --workspace
+cargo test --workspace
+
+# Create RFD (once implemented)
+rfd create --title "Feature Name" --author "Name <email>"
 
 # Check current sprint status
 cat .claude/context/project-state.md
 
-# See today's focus
-cat .claude/sessions/current.md
+# See project vision
+cat docs/VISION.md
 ```
 
 ## 📁 Directory Structure
 
 ```
 tapestry/
-├── src/
-│   ├── domain/            # Pure business logic (no dependencies!)
-│   ├── application/       # Use cases and ports (interfaces)
-│   ├── infrastructure/    # External adapters (MCP, DB, APIs)
-│   ├── tools/             # Individual MCP tools
-│   │   └── {tool}/
-│   │       ├── domain.rs  # Core logic
-│   │       ├── port.rs    # Interface
-│   │       └── adapter.rs # MCP implementation
-│   └── registry/          # Tool discovery and management
+├── cli/                   # Standalone CLI tools (for Skills)
+│   └── rfd/              # RFD document manager (current focus)
+│       ├── src/
+│       │   └── main.rs   # CLI entry point
+│       ├── Cargo.toml
+│       └── README.md
+├── mcp/                   # MCP protocol tools (deep integration)
+│   └── git_workflow/     # Git workflow automation (paused)
+│       ├── src/
+│       │   ├── domain.rs # Pure logic
+│       │   ├── port.rs   # Interface
+│       │   └── adapter.rs # MCP impl
+│       └── Cargo.toml
+├── skills/                # Skills that orchestrate tools
+│   └── rfd-manager/      # Skill for RFD workflow (planned)
+│       └── SKILL.md
 ├── docs/
-│   ├── design/            # RFCs and design documents
-│   └── VISION.md          # Project vision
-├── .claude/               # AI collaboration context (see below)
-└── CLAUDE.md              # This file
+│   ├── design/
+│   │   └── features/     # RFC documents
+│   └── VISION.md         # Project vision
+├── .claude/              # AI collaboration context
+├── Cargo.toml            # Workspace configuration
+└── CLAUDE.md             # This file
 ```
 
-## 🏗️ Architecture Pattern
+## 🏗️ Architecture Patterns
 
-**Every tool follows this structure:**
+### Three-Layer Hybrid Architecture
+
+**When to use each:**
+
+| Need | Use CLI Tool | Use MCP Tool | Use Skill |
+|------|--------------|--------------|-----------|
+| Fast startup (< 10ms) | ✅ | ❌ | ✅ |
+| Agent invokes directly | ✅ | ✅ | ✅ |
+| Stateful/complex ops | ❌ | ✅ | - |
+| Simple file CRUD | ✅ | ❌ | - |
+| Orchestrate workflows | ❌ | ❌ | ✅ |
+
+### CLI Tool Pattern (cli/*)
 
 ```rust
-// 1. Domain (src/tools/my_tool/domain.rs) - PURE LOGIC
+// src/main.rs - Simple, fast, agent-friendly
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+
+    #[arg(short, long, default_value = "pretty")]
+    format: String,  // pretty, json, quiet
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Create { /* args */ },
+    List { /* args */ },
+    Show { id: String },
+}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+    // Execute command
+    // Output JSON when format == "json"
+    Ok(())
+}
+```
+
+### MCP Tool Pattern (mcp/*)
+
+```rust
+// Hexagonal architecture for complex tools
+// 1. Domain (domain.rs) - PURE LOGIC
 pub struct MyToolService {
     // No external dependencies!
 }
 
-impl MyToolService {
-    pub fn execute(&self, input: Input) -> Result<Output> {
-        // Pure business logic only
-    }
-}
-
-// 2. Port (src/tools/my_tool/port.rs) - INTERFACE
+// 2. Port (port.rs) - INTERFACE
 #[async_trait]
 pub trait MyToolPort {
     async fn execute(&self, input: Input) -> Result<Output>;
 }
 
-// 3. Adapter (src/tools/my_tool/adapter.rs) - MCP IMPLEMENTATION
-#[rmcp::tool(name = "my-tool", description = "...")]
+// 3. Adapter (adapter.rs) - MCP IMPLEMENTATION
+#[rmcp::tool(name = "my-tool")]
 impl Tool for MyToolAdapter {
     // MCP protocol implementation
 }
 ```
 
-**Remember**: Dependencies flow inward → Infrastructure depends on Application
-depends on Domain
+**Remember**:
+- CLI tools: Simple, fast, stateless
+- MCP tools: Complex, stateful, deep integration
+- Skills: Orchestrate both types
 
 ## ✅ Quick Checklist for New Code
 
 ### Before Writing
 
-- [ ] Is there an RFC for this feature? Check `docs/design/features/`
+- [ ] Is there an RFD/RFC for this feature? Check `docs/design/features/`
 - [ ] Have you read the conventions? See `.claude/context/team-conventions.md`
+- [ ] Decided on tool type? CLI (fast, simple) vs MCP (complex, stateful)?
 - [ ] Is your session context current? Update `.claude/sessions/current.md`
 
 ### While Writing
 
-- [ ] Domain logic has ZERO external dependencies
+- [ ] **CLI tools**: JSON output mode, idempotent operations, actionable errors
+- [ ] **MCP tools**: Domain logic has ZERO external dependencies
 - [ ] Using `Result<T, E>` for all fallible operations (no `unwrap()`!)
 - [ ] Errors are actionable (tell the user/agent how to fix)
 - [ ] Following naming conventions (snake_case functions, PascalCase types)
@@ -259,15 +313,23 @@ graph LR
 
 **Performance Targets**:
 
+**CLI Tools**:
+- Startup time: < 10ms (cold start)
+- Execution: < 50ms for simple operations
+- Binary size: < 3MB (stripped with LTO)
+- Memory: < 10MB peak
+
+**MCP Tools**:
 - Tool execution: < 100ms P50, < 500ms P99
 - Memory per tool: < 10MB
 - Startup time: < 1 second
 
 **Code Quality**:
 
-- Test coverage: > 80% for domain logic
+- Test coverage: > 80% for domain/business logic
 - Zero clippy warnings
 - All public APIs documented
+- Skills documented with examples
 
 ## 🤝 Working with Claude Code
 
@@ -281,14 +343,21 @@ graph LR
 4. **Verify understanding**: Ask Claude to explain the architecture before
    implementing
 
-### Example Interaction
+### Example Interactions
 
 ```
-You: "Create a new MCP tool for code analysis"
+# Building a new tool
+You: "Create a new tool for managing documentation"
 
-Better: "Using /create-mcp-tool, create a 'code-analyzer' tool that
-analyzes Rust code for complexity metrics. Follow our hexagonal
-architecture pattern from .claude/context/architecture.md"
+Better: "Build a CLI tool for managing RFD documents. Should support
+create, list, show, and status commands with JSON output. Follow the
+pattern from cli/rfd and see docs/VISION.md for our hybrid approach."
+
+# Understanding architecture
+You: "Why do we have both CLI and MCP tools?"
+
+Better: "Explain the three-layer architecture from docs/VISION.md.
+When should I use CLI vs MCP? What are Skills for?"
 ```
 
 ## 🔗 Quick Links
@@ -302,8 +371,10 @@ architecture pattern from .claude/context/architecture.md"
 
 ### External
 
+- [Anthropic Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
 - [MCP Specification](https://modelcontextprotocol.io/)
 - [rmcp Documentation](https://docs.rs/rmcp)
+- [clap Documentation](https://docs.rs/clap)
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 
 ## 📝 Remember

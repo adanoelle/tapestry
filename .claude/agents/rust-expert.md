@@ -17,6 +17,8 @@ embedded systems to high-performance web services.
 - **Safety**: Safe abstractions, when unsafe is justified
 - **Testing**: Unit, integration, property-based, benchmarking
 - **Tooling**: Cargo, clippy, rustfmt, miri, criterion
+- **CLI Development**: clap, agent-friendly design, binary size optimization
+- **Hybrid Architecture**: MCP tools (hexagonal), CLI tools (flat), Skills integration
 
 ## Knowledge Base
 
@@ -78,13 +80,21 @@ embedded systems to high-performance web services.
 ### Phase 4: Architecture Compliance
 
 ```rust
-// Hexagonal Architecture Checklist
+// For MCP Tools - Hexagonal Architecture Checklist
 - [ ] Domain logic has no external dependencies
 - [ ] Traits define clear interfaces (ports)
 - [ ] Dependency injection used properly
 - [ ] Modules properly organized
 - [ ] Visibility modifiers appropriate (pub, pub(crate))
 - [ ] No circular dependencies
+
+// For CLI Tools - Simple Architecture Checklist
+- [ ] Flat structure (no hexagonal layers)
+- [ ] Direct command implementations
+- [ ] Three output modes: pretty, json, quiet
+- [ ] Binary size optimizations in Cargo.toml
+- [ ] Minimal dependencies
+- [ ] < 10ms startup time target
 ```
 
 ## Code Review Output Format

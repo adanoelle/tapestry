@@ -11,20 +11,20 @@ development team.
 
 ```
 .claude/
-├── README.md                 # This file
+├── README.md                # This file
 ├── instructions.md          # Core principles (rarely changes)
 ├── context/                 # Current project state
-│   ├── architecture.md     # System design
-│   ├── project-state.md    # Sprint progress
-│   └── team-conventions.md # Coding standards
-├── commands/               # Reusable Claude prompts
-├── templates/             # Code and doc templates
-├── knowledge/            # Accumulated learnings
-│   ├── decisions/       # ADRs
-│   ├── patterns/       # What works
-│   └── anti-patterns/ # What doesn't
-└── sessions/          # Daily working context
-    └── current.md    # Today's focus
+│   ├── architecture.md      # System design
+│   ├── project-state.md     # Sprint progress
+│   └── team-conventions.md  # Coding standards
+├── commands/                # Reusable Claude prompts
+├── templates/               # Code and doc templates
+├── knowledge/               # Accumulated learnings
+│   ├── decisions/           # ADRs
+│   ├── patterns/            # What works
+│   └── anti-patterns/       # What doesn't
+└── sessions/                # Daily working context
+    └── current.md           # Today's focus
 ```
 
 ## Quick Start

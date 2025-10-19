@@ -1,12 +1,12 @@
 # Tapestry Project State
 
-**Last Updated**: 2024-01-15  
-**Phase**: Foundation (Pre-Alpha)  
-**Version**: 0.0.1-dev
+**Last Updated**: 2025-10-17
+**Phase**: Skills-First Foundation (Pre-Alpha)
+**Version**: 0.1.0-dev
 
 ## Project Status
 
-### Current Sprint (2024-01-15 to 2024-01-29)
+### Current Sprint (2025-10-17 onwards)
 
 #### Completed ✅
 
@@ -15,132 +15,168 @@
 - [x] S-tier engineering principles researched
 - [x] `.claude/` directory structure designed
 - [x] Hexagonal architecture pattern selected
+- [x] **Repository restructured** (cli/, mcp/, skills/)
+- [x] **RFD CLI project initialized** with Cargo structure
+- [x] **Cargo workspace configured** for multi-tool development
+- [x] **VISION.md updated** to reflect hybrid architecture
+- [x] **Skills research** completed (understand when to use vs MCP)
 
 #### In Progress 🚧
 
-- [ ] Setting up Rust project with cargo
-- [ ] Implementing first MCP tool scaffold
-- [ ] Creating core domain models
-- [ ] Setting up rmcp integration
+- [ ] **RFD CLI MVP implementation** (create, list, show, status)
+- [ ] **RFC-002: RFD CLI tool design document**
+- [ ] **rfd-manager Skill creation**
+- [ ] Template system design for RFDs
 
 #### Upcoming 📋
 
-- [ ] First working MCP tool (hello-world)
-- [ ] Tool registry implementation
-- [ ] Authentication framework
+- [ ] Dogfood RFD CLI on Tapestry documentation
+- [ ] Convert existing RFCs to RFD format
+- [ ] Create additional Skills for common workflows
+- [ ] Evaluate Skills limitations through real usage
+- [ ] Resume git-workflow MCP tool based on learnings
 - [ ] CI/CD pipeline setup
-- [ ] Testing framework establishment
+- [ ] Binary distribution strategy
 
 ## Technical Stack Status
 
-| Component         | Status         | Notes                        |
-| ----------------- | -------------- | ---------------------------- |
-| Rust Setup        | 🔄 Planning    | Need nix flake configuration |
-| rmcp Integration  | 🔄 Planning    | Version 0.3.2 targeted       |
-| Tokio Runtime     | ❌ Not Started |                              |
-| Testing Framework | ❌ Not Started |                              |
-| Logging (tracing) | ❌ Not Started |                              |
-| Metrics           | ❌ Not Started |                              |
-| Documentation     | ✅ Started     | Structure in place           |
+| Component         | Status         | Notes                                  |
+| ----------------- | -------------- | -------------------------------------- |
+| Rust Setup        | ✅ Complete    | Workspace with nix flake               |
+| CLI Tools (clap)  | 🚧 In Progress | RFD CLI skeleton working               |
+| Templating        | 🔄 Planning    | minijinja for RFD templates            |
+| MCP Tools         | ⏸️ Paused      | git-workflow paused for Skills testing |
+| rmcp Integration  | ⏸️ Paused      | Resume after Skills validation         |
+| Skills            | 🚧 In Progress | First skill (rfd-manager) in dev       |
+| Testing Framework | 🔄 Planning    | Will establish with RFD CLI            |
+| Logging (tracing) | 🔄 Planning    | Add when needed for debugging          |
+| Documentation     | ✅ Active      | Using own tools to document            |
 
 ## Codebase Metrics
 
 ```
-Total Lines of Code: 0 (No Rust code yet)
-Documentation Lines: ~500
-Test Coverage: N/A
-Number of MCP Tools: 0
+Total Lines of Code: ~1,000 (Rust)
+  - cli/rfd: ~200 lines (skeleton)
+  - mcp/git_workflow: ~800 lines (paused)
+Documentation Lines: ~1,500
+Test Coverage: TBD (will establish with RFD CLI)
+Number of CLI Tools: 1 (RFD CLI - in development)
+Number of MCP Tools: 1 (git-workflow - paused)
+Number of Skills: 0 (first one in progress)
 ```
 
 ## Known Issues 🐛
 
-| Issue                         | Priority | Status | Owner |
-| ----------------------------- | -------- | ------ | ----- |
-| No Rust project initialized   | High     | Open   | -     |
-| Nix flake needs configuration | Medium   | Open   | -     |
+| Issue                                    | Priority | Status | Owner |
+| ---------------------------------------- | -------- | ------ | ----- |
+| RFD CLI not yet functional (MVP needed)  | High     | Open   | -     |
+| No Skills created yet                    | High     | Open   | -     |
+| git-workflow MCP tool incomplete         | Low      | Paused | -     |
+| No binary distribution strategy          | Medium   | Open   | -     |
+| Template system design needed            | High     | Open   | -     |
 
 ## Technical Debt 💳
 
 ### Immediate
 
-- Need to initialize Rust project structure
-- Set up basic CI/CD pipeline
-- Create first RFC for tool architecture
+- Implement RFD CLI MVP functionality
+- Create first Skill (rfd-manager)
+- Design template system for RFDs
+- Write RFC-002 for RFD CLI tool
 
 ### Short-term (This Month)
 
-- Establish testing patterns
-- Document contribution guidelines
-- Set up development environment automation
+- Establish testing patterns (start with RFD CLI)
+- Set up binary build and distribution
+- Document Skills → CLI workflow
+- Create example Skills for reference
 
 ### Long-term (This Quarter)
 
+- Evaluate when to use Skills vs MCP (document learnings)
+- Resume git-workflow MCP tool development
 - Performance benchmarking framework
 - Comprehensive error handling strategy
 - Tool versioning strategy
 
 ## Decisions Made 📝
 
-1. **Architecture**: Hexagonal architecture chosen for clear separation of
-   concerns
-2. **Language**: Rust for performance and safety
-3. **Monolithic First**: Starting as monolith, can split later if needed
-4. **Documentation First**: Following Stripe/Google practice of documentation
-   with code
-5. **RFC Process**: All non-trivial changes require RFC
+1. **Hybrid Architecture**: Three layers (Skills → CLI tools + MCP tools)
+2. **Skills-First Approach**: Validate Skills paradigm before heavy MCP
+   investment
+3. **Language**: Rust for CLI tools (startup time, distribution) and MCP tools
+   (performance, safety)
+4. **Repository Structure**: `cli/`, `mcp/`, `skills/` directories for clarity
+5. **Documentation First**: Dogfooding our own RFD tool
+6. **RFD Process**: Transitioning from RFC to RFD format (using our own tool)
+7. **Pause git-workflow**: Focus on RFD CLI to validate Skills approach first
 
 ## Open Questions ❓
 
-### Technical
+### Architectural
 
-- How should tools communicate with each other?
-- What's our strategy for tool versioning?
-- Should we support hot-reloading of tools?
-- How do we handle tool dependencies?
+- What are the actual limitations of Skills? (Need real usage to find out)
+- When should we use Skills vs MCP vs CLI? (Document decision matrix)
+- How do Skills and MCP tools interact? (Can Skills invoke MCP tools?)
+- Should CLI tools be able to call each other? (Composition strategy)
+
+### RFD CLI Specific
+
+- What RFD template sections are essential? (Iterate based on dogfooding)
+- How to handle multiple document types? (RFDs, ADRs, specs)
+- Should we support AsciiDoc export for Oxide compatibility?
+- How to integrate with gh CLI for issue → RFD workflow?
 
 ### Process
 
-- What's our release cadence?
-- How do we handle breaking changes?
-- What's our backward compatibility promise?
-- How do we version the overall Tapestry system?
+- Should RFDs fully replace RFCs or complement them?
+- What's our release cadence for CLI tools?
+- How do we version Skills (they're just markdown)?
+- How do we handle breaking changes in CLI tools?
 
 ### Infrastructure
 
-- Where will we host the tool registry?
-- How do we distribute Tapestry?
+- Where to host binary releases? (GitHub Releases? crates.io?)
+- Should we build a Skills marketplace/registry?
 - What's our documentation hosting strategy?
-- How do we handle telemetry/analytics?
+- Do we need telemetry/analytics? (Privacy considerations)
 
 ## Risk Register ⚠️
 
-| Risk                 | Likelihood | Impact | Mitigation                       |
-| -------------------- | ---------- | ------ | -------------------------------- |
-| Scope creep          | High       | High   | Strict RFC process, clear vision |
-| Performance issues   | Medium     | High   | Benchmark from day 1             |
-| Complex setup        | Medium     | Medium | Good docs, automation            |
-| MCP protocol changes | Low        | High   | Abstract protocol layer          |
+| Risk                          | Likelihood | Impact | Mitigation                           |
+| ----------------------------- | ---------- | ------ | ------------------------------------ |
+| Skills prove insufficient     | Medium     | High   | Quick validation before heavy invest |
+| Scope creep                   | High       | High   | Focus on RFD CLI MVP first           |
+| Performance issues (CLI)      | Low        | Medium | Rust + simple operations             |
+| Complex setup for users       | Medium     | Medium | Single binary distribution           |
+| Template system too rigid     | Medium     | Medium | Iterate based on dogfooding          |
+| Skills/MCP ecosystem changes  | Medium     | Medium | Abstract interfaces, stay modular    |
 
 ## Team Notes 📓
 
 ### For Next Session
 
-1. Initialize Rust project with cargo
-2. Set up basic project structure
-3. Create first "hello-world" MCP tool
-4. Write RFC for tool registry design
+1. Implement RFD CLI MVP (create, list, show commands)
+2. Design template system (default RFD template)
+3. Create rfd-manager Skill
+4. Write RFC-002 for RFD CLI design
+5. Test Skills → CLI invocation workflow
 
 ### Blockers
 
-- Need to finalize nix flake configuration
-- Need to decide on initial tool to implement
+- None currently (good momentum!)
 
 ### Recent Learnings
 
-- S-tier companies all use RFC processes
+- **Skills are simpler than MCP** but have limitations (need to discover them)
+- **Hybrid approach makes sense**: Use the right tool for each job
+- **Dogfooding is essential**: Use our own tools to find pain points
+- **Token efficiency matters**: Skills overhead is minimal vs MCP
+- **Startup time is critical**: 5ms vs 100ms+ makes a difference for agents
+- S-tier companies use RFC/RFD processes (now implementing our own)
 - Documentation-first approach pays dividends
-- Hexagonal architecture scales well
-- Start simple, iterate based on needs
+- Hexagonal architecture scales well (preserved in git-workflow)
+- Start simple, iterate based on needs (Skills-first validates this)
 
 ## Resource Links 🔗
 
@@ -158,23 +194,27 @@ Number of MCP Tools: 0
 
 ## Next Milestones 🎯
 
-### Week 2 (Jan 22-29)
+### Week 1-2 (Late Oct 2025)
 
-- [ ] First working MCP tool
-- [ ] Basic test suite
-- [ ] CI pipeline running
+- [ ] RFD CLI MVP functional (create, list, show, status)
+- [ ] First Skill (rfd-manager) working
+- [ ] RFC-002 written and published
+- [ ] Template system designed and implemented
 
-### Month 1 (End of Jan)
+### Month 1 (Nov 2025)
 
-- [ ] 3 working MCP tools
-- [ ] Tool registry functional
-- [ ] Documentation site live
+- [ ] Dogfood RFD CLI for all Tapestry docs
+- [ ] 2-3 Skills created
+- [ ] Binary distribution working (GitHub Releases)
+- [ ] Skills limitations documented
 
-### Quarter 1 (End of March)
+### Quarter 1 (End of Dec 2025)
 
-- [ ] 10+ MCP tools
-- [ ] Authentication system complete
-- [ ] First external users testing
+- [ ] 3-5 CLI tools operational
+- [ ] 1-2 MCP tools operational (resume git-workflow)
+- [ ] 5+ Skills encoding best practices
+- [ ] Clear decision matrix for Skills vs MCP vs CLI
+- [ ] First external users testing tools
 
 ---
 

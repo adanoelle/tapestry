@@ -1,9 +1,25 @@
 # RFC-{NUMBER}: {TITLE}
 
-**Date**: {DATE}  
-**Author**: {AUTHOR}  
-**Status**: Draft | In Review | Accepted | Rejected | Implemented  
-**Implementation**: [Link to PR when ready]  
+> **⚠️ DEPRECATED**: This RFC format is being replaced by RFD (Request for Discussion) format.
+>
+> **Use instead**: `/create-rfd "Title" "Author <email@example.com>"`
+>
+> **Why RFDs?**
+> - Structured YAML frontmatter (agent-parseable)
+> - CLI tool for management (`cargo run --bin rfd`)
+> - State machine for lifecycle tracking
+> - Consistent format across all documentation
+>
+> **Documentation**: `.claude/commands/create-rfd.md`
+>
+> This template is kept for reference during the transition period.
+
+---
+
+**Date**: {DATE}
+**Author**: {AUTHOR}
+**Status**: Draft | In Review | Accepted | Rejected | Implemented
+**Implementation**: [Link to PR when ready]
 **Tracking Issue**: #{ISSUE_NUMBER}
 
 ## Executive Summary
