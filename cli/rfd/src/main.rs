@@ -102,7 +102,7 @@ enum Commands {
         author: String,
 
         /// Template to use (default: "default")
-        #[arg(short = 't', long, default_value = "default")]
+        #[arg(long, default_value = "default")]
         template: String,
     },
 
