@@ -1,238 +1,152 @@
-# Tapestry 🧵
+# Tapestry
 
-**Practical MCP tools for supercharging AI-assisted development**
+**AI-native development tools for modern software teams**
 
-[![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
-[![MCP](https://img.shields.io/badge/MCP-Protocol-blue?style=for-the-badge)](https://modelcontextprotocol.io/)
+[![CI](https://github.com/yourusername/tapestry/workflows/CI/badge.svg)](https://github.com/yourusername/tapestry/actions)
+[![codecov](https://codecov.io/gh/yourusername/tapestry/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/tapestry)
 
-Tapestry is a collection of developer-centric MCP (Model Context Protocol) tools
-that enhance AI-assisted development workflows. Built with Rust using hexagonal
-architecture and S-tier engineering practices.
+---
 
-## 🎯 Quick Start
+## The Problem
+
+AI assistants are transforming how we write code, but they need better tools.
+Traditional development tools weren't designed for AI collaboration, creating
+friction in AI-assisted workflows.
+
+## The Solution
+
+Tapestry provides a suite of purpose-built tools that enable seamless human-AI
+collaboration through a hybrid architecture:
+
+- **CLI Tools** for fast, lightweight operations
+- **MCP Tools** for deep IDE integration
+- **Skills** to orchestrate complex workflows
+
+Built with Rust for performance and reliability. Designed for both humans and
+AI.
+
+---
+
+## Why Tapestry?
+
+### Fast by Design
+
+Optimized for instant startup and minimal resource usage. RFD CLI launches in
+1ms with a 2.4MB footprint.
+
+### AI-First Architecture
+
+Every tool provides structured output for AI consumption and accepts both human
+and programmatic input.
+
+### Production Quality
+
+Comprehensive testing, cross-platform support, and S-tier engineering practices
+from day one.
+
+---
+
+## Get Started
+
+### Installation
+
+**With Nix** (recommended):
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/tapestry.git
 cd tapestry
-
-# Build with cargo (coming soon)
-cargo build --release
-
-# Run tests
-cargo test
+nix develop
 ```
 
-## 🛠️ Tools
+**Without Nix**:
 
-### Available Tools
-
-#### RFD CLI - Request for Discussion Manager
-**Status**: ✅ Production Ready | **Type**: CLI Tool
-
-A fast, agent-friendly CLI for managing technical design documents in the Oxide RFD format.
-
-**Key Features**:
-- ⚡ Fast: 1ms startup time, 2.4MB binary
-- 🤖 Agent-friendly: JSON output, idempotent operations
-- 📝 Complete workflow: Create, list, update, validate RFDs
-- 🎨 Custom templates: Jinja2-based templating system
-- ✅ Production-ready: 32 tests, comprehensive documentation
-
-**Quick Start**:
 ```bash
-cd cli/rfd
-cargo build --release
-./target/release/rfd create --title "My Proposal" --author "Me <me@example.com>"
+git clone https://github.com/yourusername/tapestry.git
+cd tapestry
+./scripts/setup-dev.sh
 ```
 
-**Documentation**: [README](cli/rfd/README.md) | [Architecture](cli/rfd/ARCHITECTURE.md) | [Examples](cli/rfd/examples/)
+[Complete installation guide →](docs/GETTING_STARTED.md)
+
+### Quick Example
+
+```bash
+# Create a technical design document
+rfd create --title "API Rate Limiting" --author "Jane Doe <jane@example.com>"
+
+# List all RFDs
+rfd list
+
+# Update status
+rfd status 0001 discussion
+```
+
+[RFD CLI documentation →](cli/rfd/README.md)
 
 ---
 
-### In Development
+## Available Tools
 
-#### Git Context Tool (MCP)
-**Status**: 🔄 Paused | **Type**: MCP Tool
+### RFD CLI
 
-Rich git context for AI assistants using the Model Context Protocol.
+**Manage technical design documents with speed and precision**
 
-- **Location**: [`mcp/git_workflow/`](mcp/git_workflow/)
-- **RFC**: [RFC-001](docs/design/features/RFC-001-git-context-tool.md)
-- **Note**: Paused to prioritize CLI tools first (Skills-first approach)
+Request for Discussion (RFD) documents help teams make better technical
+decisions through written proposals and collaborative review.
+
+- Create, update, and track RFDs
+- JSON output for AI workflows
+- Custom templates with Jinja2
+- Production-ready (v0.1.0)
+
+[Learn more →](cli/rfd/README.md)
 
 ---
 
-### Planned Tools
+## Roadmap
 
-- **Code Review Tool** - Automated code review with AI insights
-- **Test Generator** - Intelligent test generation based on code patterns
-- **Documentation Generator** - Living documentation from code and comments
+**Now**: RFD CLI enhancements (search, export, GitHub integration)
 
-## 🏗️ Architecture
+**Next**: Code review and test generation tools
 
-### Hybrid Architecture
+**Future**: MCP tools for git workflows and intelligent orchestration
 
-Tapestry uses a **hybrid architecture** combining lightweight CLI tools with deep-integration MCP tools, orchestrated by Claude Code Skills.
+[Full roadmap →](docs/ROADMAP.md)
 
-**Three-Layer Design**:
+---
 
-```
-Skills Layer (Claude Code)
-    ↓ orchestrates ↓
-CLI Tools ←→ MCP Tools
-```
+## Documentation
 
-**CLI Tools** (`cli/*`):
-- ⚡ Fast startup (< 10ms)
-- 📁 Simple file operations
-- 🤖 Agent-friendly (JSON output)
-- 🔄 Stateless operations
-- **Example**: RFD CLI
+- [Getting Started](docs/GETTING_STARTED.md) - Installation and first steps
+- [Architecture](docs/ARCHITECTURE.md) - Technical deep-dive
+- [Contributing](docs/design/meta/CONTRIBUTING.md) - How to contribute
+- [Vision](docs/VISION.md) - Why Tapestry exists
 
-**MCP Tools** (`mcp/*`):
-- 🔌 Deep IDE/editor integration
-- 🔄 Complex stateful operations
-- 📡 Real-time collaboration
-- 🌐 Persistent connections
-- **Example**: Git Context (planned)
+[Documentation hub →](docs/README.md)
 
-**Skills** (`.claude/skills/`):
-- 🎯 Orchestrate CLI + MCP tools
-- 🧠 Multi-step workflows
-- 📋 Context management
-- **Example**: rfd-manager (planned)
+---
 
-### Tool Architecture Pattern
+## Community
 
-Each tool follows hexagonal architecture for testability:
+- [GitHub Discussions](https://github.com/yourusername/tapestry/discussions) -
+  Questions and ideas
+- [GitHub Issues](https://github.com/yourusername/tapestry/issues) - Bug reports
+- [RFC Process](docs/design/meta/CONTRIBUTING.md#rfc-process) - Feature
+  proposals
 
-```
-src/
-├── domain.rs    # Pure business logic (no external dependencies)
-├── port.rs      # Interface definitions (traits)
-└── adapter.rs   # CLI/MCP implementation (infrastructure)
-```
+---
 
-**Key principles:**
-
-- Dependencies flow inward (Infrastructure → Application → Domain)
-- Domain logic has zero external dependencies
-- Each tool is independent but shares common patterns
-- Start simple (CLI) → Add complexity as needed (MCP)
-
-## 📚 Documentation
-
-- [Project Vision](docs/VISION.md) - Where we're heading
-- [Architecture Decisions](.claude/knowledge/decisions/) - Why we built it this
-  way
-- [Team Conventions](.claude/context/team-conventions.md) - How we work
-- [Contributing Guide](docs/design/meta/CONTRIBUTING.md) - How to contribute
-
-## 🧠 AI-Native Development
-
-This project embraces AI-assisted development with a special `.claude/`
-directory containing:
-
-- **instructions.md** - Core principles
-- **context/** - Architecture, tech decisions, conventions
-- **knowledge/** - Decision records and learnings
-- **templates/** - RFC and tool templates
-- **commands/** - Custom AI commands
-
-This structure helps Claude Code and other AI assistants understand the codebase
-deeply.
-
-## 🚀 Roadmap
-
-### Phase 1: Foundation ✅ COMPLETE
-
-- [x] Documentation structure
-- [x] Architecture decisions
-- [x] **RFD CLI tool** - Production ready! 🎉
-  - [x] Core commands (create, list, show, status, update, validate)
-  - [x] Template system with Jinja2
-  - [x] JSON output for agents
-  - [x] Comprehensive tests (32 tests)
-  - [x] Full documentation (ARCHITECTURE.md, CONTRIBUTING.md, examples/)
-  - [x] Performance optimization (2.4MB, 1ms startup)
-- [ ] First MCP tool (Git Context) - paused
-- [ ] Tool registry system
-- [ ] Basic CI/CD
-
-### Phase 2: Essential CLI Tools (Next)
-
-- [ ] **RFD CLI enhancements**:
-  - [ ] Full-text search across RFD content
-  - [ ] Export to HTML/PDF
-  - [ ] Git integration (auto-commit on changes)
-  - [ ] GitHub issue integration
-  - [ ] Dependency tracking between RFDs
-- [ ] **New CLI tools**:
-  - [ ] Code review tool
-  - [ ] Test generation tool
-  - [ ] Documentation generator
-
-### Phase 3: MCP Tools & Intelligence
-
-- [ ] Resume Git Context MCP tool
-- [ ] Session memory tool
-- [ ] Pattern recognition
-- [ ] Cross-tool integration
-- [ ] Learning system
-
-## 🤝 Contributing
-
-We follow S-tier engineering practices from companies like Stripe, Google, and
-Anthropic.
-
-1. **Start with an RFC** - All features begin with a design document
-2. **Follow conventions** - Check `.claude/context/team-conventions.md`
-3. **Test thoroughly** - 70% unit, 20% integration, 10% e2e
-4. **Document everything** - Code should be self-documenting
-
-See [CONTRIBUTING.md](docs/design/meta/CONTRIBUTING.md) for details.
-
-## 📊 Performance Targets
-
-### CLI Tools
-- **Startup time**: < 10ms (RFD CLI: 1ms ✅)
-- **Binary size**: < 3MB (RFD CLI: 2.4MB ✅)
-- **Memory usage**: < 10MB (RFD CLI: ~5MB ✅)
-- **Execution**: < 50ms for simple operations
-
-### MCP Tools (Future)
-- **Tool execution**: P50 < 100ms, P99 < 500ms
-- **Memory per tool**: < 10MB
-- **Startup time**: < 1 second
-- **Concurrent tools**: 1000+
-
-## 🔒 Security
-
-- OAuth 2.0 for authentication
-- JWT with short expiration (15 min)
-- Input validation on all external data
-- Rate limiting per tool
-- Audit logging for all operations
-
-## 📄 License
+## License
 
 [License details to be added]
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-Built with inspiration from:
-
-- [Anthropic](https://anthropic.com) for MCP and Claude
-- [Stripe](https://stripe.com) for API design principles
-- [Google](https://google.com) for engineering practices
-- The Rust community for excellent tooling
+Built with inspiration from [Anthropic](https://anthropic.com),
+[Stripe](https://stripe.com), [Google](https://google.com), and
+[Oxide Computer](https://oxide.computer).
 
 ---
 
-**Status**: ✅ First CLI tool production-ready!
-**Latest**: RFD CLI v0.1.0 - Complete with documentation and examples
-**Current Focus**: Gathering feedback on RFD CLI and planning next tools
-**Looking for**: Feature requests, use cases, and contributions
-
-_Building the future of AI-assisted development, one tool at a time._
+<sub>Tapestry is in active development. We welcome contributors and early
+adopters.</sub>
