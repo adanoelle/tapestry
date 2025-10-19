@@ -2,11 +2,11 @@
 
 **AI-native development tools for modern software teams**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/adanoelle/tapestry/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/adanoelle/tapestry/actions)
-[![codecov](https://img.shields.io/codecov/c/github/adanoelle/tapestry?style=flat-square&logo=codecov)](https://codecov.io/gh/adanoelle/tapestry)
-[![MCP](https://img.shields.io/badge/MCP-Protocol-5865F2?style=flat-square)](https://modelcontextprotocol.io/)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange?style=flat-square&logo=rust)](https://www.rust-lang.org/)
 [![Nix](https://img.shields.io/badge/nix-flake-7EBAE4?style=flat-square&logo=nixos&logoColor=white)](https://nixos.org/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-5865F2?style=flat-square)](https://modelcontextprotocol.io/)
+[![CI](https://img.shields.io/github/actions/workflow/status/adanoelle/tapestry/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/adanoelle/tapestry/actions)
+[![codecov](https://img.shields.io/codecov/c/github/adanoelle/tapestry?style=flat-square&logo=codecov)](https://codecov.io/gh/adanoelle/tapestry)
 
 ---
 
