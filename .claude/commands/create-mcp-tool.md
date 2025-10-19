@@ -87,12 +87,12 @@ port interfaces, and data flow.
 TOOL_MODULE=$(echo "$TOOL_NAME" | tr '-' '_')
 
 # Create the tool crate directory
-mkdir -p tools/$TOOL_MODULE/src/{domain,port,adapter}
-mkdir -p tools/$TOOL_MODULE/tests/{unit,integration}
-mkdir -p tools/$TOOL_MODULE/benches
+mkdir -p mcp/$TOOL_MODULE/src/{domain,port,adapter}
+mkdir -p mcp/$TOOL_MODULE/tests/{unit,integration}
+mkdir -p mcp/$TOOL_MODULE/benches
 
 # Create Cargo.toml for the tool
-cat > tools/$TOOL_MODULE/Cargo.toml << EOF
+cat > mcp/$TOOL_MODULE/Cargo.toml << EOF
 [package]
 name = "$TOOL_MODULE"
 version = "0.1.0"
@@ -139,7 +139,7 @@ echo "✅ Updated Cargo.toml dependencies"
 ### Step 2.3: Workspace Auto-Discovery
 
 ```bash
-# The workspace Cargo.toml already includes tools/*
+# The workspace Cargo.toml already includes mcp/*
 # so the new crate is automatically discovered
 echo "✅ Tool crate will be auto-discovered by workspace"
 ```
@@ -154,7 +154,7 @@ echo "✅ Tool crate will be auto-discovered by workspace"
 
 **Rust Expert Task**: Implement pure domain logic with no external dependencies.
 
-Generate `tools/$TOOL_MODULE/src/domain.rs`:
+Generate `mcp/$TOOL_MODULE/src/domain.rs`:
 
 ```rust
 //! Domain logic for $TOOL_NAME
@@ -427,7 +427,7 @@ echo "✅ Code compiles and passes initial checks"
 Generate `tests/unit/$TOOL_MODULE/domain_tests.rs`:
 
 ```rust
-use tapestry::tools::$TOOL_MODULE::{
+use tapestry::mcp::$TOOL_MODULE::{
     ${ToolName}Service, ${ToolName}Input, ${ToolName}Output, ${ToolName}Error
 };
 
@@ -455,7 +455,7 @@ fn should_handle_errors_gracefully() {
 Generate `tests/integration/${TOOL_MODULE}_test.rs`:
 
 ```rust
-use tapestry::tools::$TOOL_MODULE::{create_tool, ${ToolName}Input};
+use tapestry::mcp::$TOOL_MODULE::{create_tool, ${ToolName}Input};
 
 #[tokio::test]
 async fn test_mcp_integration() {
@@ -531,12 +531,12 @@ Check for:
 cargo audit
 
 # Check for unsafe code
-if grep -r "unsafe" src/tools/$TOOL_MODULE/; then
+if grep -r "unsafe" mcp/$TOOL_MODULE/; then
     echo "⚠️ Found unsafe code - needs justification"
 fi
 
 # Check for unwrap/expect
-if grep -r "unwrap()\|expect(" src/tools/$TOOL_MODULE/; then
+if grep -r "unwrap()\|expect(" mcp/$TOOL_MODULE/; then
     echo "⚠️ Found unwrap/expect - replace with proper error handling"
 fi
 
@@ -549,7 +549,7 @@ echo "✅ Security audit complete"
 
 ### Step 6.1: Write Documentation
 
-Create `src/tools/$TOOL_MODULE/README.md`:
+Create `mcp/$TOOL_MODULE/README.md`:
 
 ````markdown
 # $TOOL_NAME
@@ -558,7 +558,7 @@ $DESCRIPTION
 
 ## Usage
 
-\```rust use tapestry::tools::$TOOL_NAME;
+\```rust use tapestry::mcp::$TOOL_NAME;
 
 let tool = $TOOL_NAME::create_tool();
 let input = $TOOL_NAME::${ToolName}Input { // Set input fields };
@@ -600,7 +600,7 @@ Add to `src/registry/mod.rs`:
 
 ```rust
 // Add import
-use crate::tools::$TOOL_NAME;
+use crate::mcp::$TOOL_NAME;
 
 // In the registry initialization
 registry.register(
@@ -621,7 +621,7 @@ registry.register(
 # Create benchmark file
 cat > benches/${TOOL_MODULE}_bench.rs << 'EOF'
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use tapestry::tools::$TOOL_MODULE::{create_tool, ${ToolName}Input};
+use tapestry::mcp::$TOOL_MODULE::{create_tool, ${ToolName}Input};
 
 fn benchmark_$TOOL_MODULE(c: &mut Criterion) {
     let tool = create_tool();
@@ -705,7 +705,7 @@ echo "### Added
 
 # Commit the new tool
 git add -A
-git commit -m "feat(tools): Add $TOOL_NAME tool
+git commit -m "feat(mcp): Add $TOOL_NAME tool
 
 - Implements $DESCRIPTION
 - Follows hexagonal architecture
@@ -789,9 +789,9 @@ This command leverages cargo for:
 
 **File Organization**:
 
-- Each tool is a separate crate in `tools/{tool-name}/`
-- Tests within each crate at `tools/{tool-name}/tests/`
-- Benchmarks within each crate at `tools/{tool-name}/benches/`
+- Each tool is a separate crate in `mcp/{tool-name}/`
+- Tests within each crate at `mcp/{tool-name}/tests/`
+- Benchmarks within each crate at `mcp/{tool-name}/benches/`
 - Documentation with code
 
 **Remember**: The agents ensure quality at each phase. Trust the process!

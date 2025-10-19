@@ -102,7 +102,7 @@ input:
   - Architecture design from Phase 1
   - Domain entity specifications
 output:
-  - src/tools/{tool_name}/domain.rs
+  - mcp/{tool_name}/src/domain.rs
   - Pure business logic implementation
 artifacts:
   - Source code file
@@ -113,7 +113,7 @@ artifacts:
 ```markdown
 Act as the Rust Expert agent. Implement domain logic for {TOOL_NAME}. Use
 architecture from .claude/workflows/artifacts/{tool-name}/architecture.md Create
-src/tools/{tool_name}/domain.rs with zero external dependencies.
+mcp/{tool_name}/src/domain.rs with zero external dependencies.
 ```
 
 #### Step 2.2: Port Implementation
@@ -124,7 +124,7 @@ input:
   - Domain implementation
   - Port interface specifications
 output:
-  - src/tools/{tool_name}/port.rs
+  - mcp/{tool_name}/src/port.rs
   - Trait definitions with async-trait
 artifacts:
   - Source code file
@@ -138,7 +138,7 @@ input:
   - Port definitions
   - MCP protocol requirements
 output:
-  - src/tools/{tool_name}/adapter.rs
+  - mcp/{tool_name}/src/adapter.rs
   - MCP Tool trait implementation
 artifacts:
   - Source code file
@@ -151,8 +151,8 @@ agent: Rust Expert
 input:
   - All implementation files
 output:
-  - src/tools/{tool_name}/mod.rs
-  - Updated src/tools/mod.rs
+  - mcp/{tool_name}/src/lib.rs
+  - Updated workspace Cargo.toml (auto-discovered via mcp/*)
 artifacts:
   - Source code files
 ```

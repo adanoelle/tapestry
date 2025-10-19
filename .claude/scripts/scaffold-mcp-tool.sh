@@ -135,7 +135,7 @@ print_status "Created RFC: $RFC_FILE"
 print_status "Phase 2: Scaffolding structure..."
 
 # Create tool crate directory
-TOOL_DIR="tools/$TOOL_MODULE"
+TOOL_DIR="mcp/$TOOL_MODULE"
 mkdir -p $TOOL_DIR/src
 mkdir -p $TOOL_DIR/tests  # Tests go directly in tests/, not in subdirectories
 mkdir -p $TOOL_DIR/benches
@@ -456,7 +456,7 @@ $DESCRIPTION
 ## Usage
 
 \`\`\`rust
-use tapestry::tools::$TOOL_MODULE;
+use tapestry::mcp::$TOOL_MODULE;
 
 let tool = $TOOL_MODULE::create_tool();
 let input = $TOOL_MODULE::${TOOL_STRUCT}Input {
@@ -487,7 +487,7 @@ This tool follows Tapestry's hexagonal architecture:
 Run tests with:
 \`\`\`bash
 # Unit tests
-cargo test --lib tools::$TOOL_MODULE
+cargo test -p $TOOL_MODULE
 
 # Integration tests
 cargo test --test ${TOOL_MODULE}_test
@@ -613,7 +613,7 @@ print_status "Generated integration tests"
 # Phase 5: Update workspace members if needed
 print_status "Phase 5: Checking workspace configuration..."
 
-# The workspace Cargo.toml already has tools/* as members, so new tools are automatically included
+# The workspace Cargo.toml already has mcp/* as members, so new tools are automatically included
 print_status "Tool will be automatically discovered by workspace"
 
 # Phase 6: Add dependencies if needed
@@ -691,9 +691,9 @@ echo "======================================="
 echo ""
 echo "📁 Structure created:"
 echo "  - RFC: $RFC_FILE"
-echo "  - Tool crate: tools/$TOOL_MODULE/"
-echo "  - Tests: tools/$TOOL_MODULE/tests/"
-echo "  - Benchmarks: tools/$TOOL_MODULE/benches/"
+echo "  - Tool crate: mcp/$TOOL_MODULE/"
+echo "  - Tests: mcp/$TOOL_MODULE/tests/"
+echo "  - Benchmarks: mcp/$TOOL_MODULE/benches/"
 echo ""
 echo "📝 Next steps:"
 echo "  1. Review and complete the RFC"
@@ -705,7 +705,7 @@ echo "  6. Update CHANGELOG.md"
 echo ""
 echo "🤖 Agent workflow commands:"
 echo "  - Design Review: 'Act as Design Reviewer, review $RFC_FILE'"
-echo "  - Implementation: 'Act as Rust Expert, implement tools/$TOOL_MODULE/src/domain.rs'"
+echo "  - Implementation: 'Act as Rust Expert, implement mcp/$TOOL_MODULE/src/domain.rs'"
 echo "  - Testing: 'Act as Test Writer, create tests for $TOOL_MODULE'"
 echo "  - Security: 'Act as Security Auditor, review $TOOL_MODULE for vulnerabilities'"
 echo ""
