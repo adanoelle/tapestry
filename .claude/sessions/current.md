@@ -1,204 +1,199 @@
-# Current Session: Project Initialization
+# Current Session: Skills-First Validation & RFD CLI Development
 
-**Date**: 2025-09-02  
-**Focus**: Setting up Tapestry foundation  
-**Goal**: Get first MCP tool running
+**Date**: 2025-10-17
+**Focus**: Validate Skills paradigm with RFD CLI tool
+**Goal**: Build RFD CLI MVP and first Skill (rfd-manager)
 
 ## Session Context
 
-Starting the Tapestry project - a monolithic suite of MCP tools for AI-assisted
-development. We've established the S-tier engineering principles and created the
-`.claude/` directory structure.
+Pivoting Tapestry to a hybrid three-layer architecture (Skills → CLI tools + MCP tools). We're validating the Skills-first approach by building the RFD CLI tool before investing heavily in MCP infrastructure.
 
 ## Today's Objectives
 
 ### Immediate (Next Hour)
 
-1. [x] Create `.claude/` directory structure
-2. [x] Establish core principles from S-tier companies
-3. [ ] Initialize Rust project with cargo
-4. [ ] Configure nix flake for development environment
+1. [x] Update `.claude/` directory for hybrid architecture
+2. [ ] Complete Skills scaffolding infrastructure
+3. [ ] Complete CLI tool scaffolding infrastructure
+4. [ ] Create RFD command using our own tool
 
 ### Today's Goals
 
-1. [ ] Set up basic Rust project structure
-2. [ ] Configure Cargo.toml with initial dependencies
-3. [ ] Create first "hello-world" MCP tool
-4. [ ] Get rmcp integration working
-5. [ ] Write first RFC for tool architecture
+1. [ ] Skills scaffolding command `/create-skill` working
+2. [ ] CLI tool scaffolding command `/create-cli-tool` working
+3. [ ] RFD command `/create-rfd` working (dogfooding!)
+4. [ ] ADR-002 documenting hybrid architecture decision
+5. [ ] New specialized agents created
 
 ## Current Task
 
-**Task**: Initialize Rust project  
-**Status**: Ready to start  
+**Task**: Update `.claude/` directory infrastructure
+**Status**: In progress (Phase 1 complete: MCP tool references fixed)
 **Next Steps**:
 
-1. Run `cargo init --name tapestry`
-2. Add dependencies to Cargo.toml
-3. Create source directory structure
+1. Create Skills scaffolding (command, template, workflow, script)
+2. Create CLI tool scaffolding (command, template, workflow, script)
+3. Create RFD command (uses our RFD CLI tool)
+4. Document hybrid architecture decision
 
 ## Decisions to Make
 
-1. **Workspace Structure**: Single crate or workspace with multiple crates?
-   - Leaning toward: Single crate initially, split later if needed
-2. **First Tool**: What should be our first MCP tool?
+1. **Skills scaffolding automation level**: Shell script or just markdown command?
+   - Leaning toward: Shell script for consistency with MCP scaffolding
 
-   - Options: echo, hello-world, file-reader, code-analyzer
-   - Recommendation: Start with echo (simple input/output)
+2. **CLI tool structure**: How much simpler than MCP tools?
+   - Recommendation: No hexagonal architecture, simple flat structure
 
-3. **Testing Strategy**: Which testing framework additions?
-   - Built-in tests definitely
-   - Consider: proptest, test-case, criterion for benchmarks
+3. **RFD template location**: In RFD CLI or in `.claude/templates/`?
+   - Recommendation: Both - CLI has built-in, `.claude/` references it
 
 ## Code Snippets to Use
 
-### Initial Cargo.toml
+### Skills Template Structure
 
-```toml
-[package]
-name = "tapestry"
-version = "0.0.1"
-edition = "2021"
-authors = ["Tapestry Team"]
-description = "Monolithic suite of MCP tools for AI-assisted development"
-license = "MIT"
-repository = "https://github.com/yourusername/tapestry"
+```yaml
+---
+name: {{skill_name}}
+description: {{description_with_usage_triggers}}
+allowed-tools: {{optional_tool_restrictions}}
+---
 
-[dependencies]
-# Async runtime
-tokio = { version = "1.35", features = ["full"] }
+# {{skill_name}}
 
-# MCP support
-rmcp = "0.3.2"
+## Purpose
+{{what_this_skill_does}}
 
-# Error handling
-anyhow = "1.0"
-thiserror = "1.0"
+## When to Use
+{{usage_triggers_for_claude}}
 
-# Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+## Instructions
+{{step_by_step_guidance}}
 
-# Logging
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# Async trait
-async-trait = "0.1"
-
-[dev-dependencies]
-proptest = "1.4"
-criterion = "0.5"
-tokio-test = "0.4"
-
-[[bench]]
-name = "tool_benchmarks"
-harness = false
+## Examples
+{{concrete_examples}}
 ```
 
-### Basic main.rs Structure
+### CLI Tool Structure (Simple)
 
 ```rust
+use clap::{Parser, Subcommand};
 use anyhow::Result;
-use tracing::info;
-use tracing_subscriber;
 
-mod domain;
-mod application;
-mod infrastructure;
-mod tools;
-mod registry;
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    // Initialize logging
-    tracing_subscriber::fmt::init();
+    #[arg(short, long, default_value = "pretty")]
+    format: String,  // pretty, json, quiet
+}
 
-    info!("Starting Tapestry MCP Tools Suite");
+#[derive(Subcommand)]
+enum Commands {
+    // Command definitions
+}
 
-    // TODO: Initialize tool registry
-    // TODO: Start MCP server
-
+fn main() -> Result<()> {
+    // Simple, flat implementation
     Ok(())
 }
 ```
 
 ## Questions for Next Session
 
-1. How do we handle tool discovery in MCP?
-2. Should tools be dynamically loaded or compiled in?
-3. What's our strategy for tool versioning?
-4. How do we handle inter-tool communication?
+1. What Skills limitations did we discover?
+2. How well does the rfd-manager Skill work in practice?
+3. Do we need to adjust the Skills vs CLI vs MCP decision matrix?
+4. What patterns emerged from building the first CLI tool?
 
 ## Notes & Learnings
 
-### From S-Tier Research
+### From Architectural Pivot
 
-- Stripe's API design philosophy: "Seven lines of code" for initial integration
-- Google's monorepo approach: 40,000 commits/day by 10,000+ engineers
-- Anthropic's principle: "Don't build a spaceship when a bicycle suffices"
-- Netflix's microservices: 2,200+ services, GraphQL federation
-- Uber's RFC evolution: From DUCK to structured RFC process
+- **Skills are model-invoked** - Claude decides when to use them based on description
+- **Skills are token-efficient** - Few dozen tokens vs tens of thousands for MCP
+- **No built-in scaffolding** - We need to build our own tooling
+- **Hybrid approach makes sense** - Use the right tool for each job
+  - Skills: Orchestration and workflow guidance
+  - CLI tools: Fast, agent-friendly operations (< 10ms startup)
+  - MCP tools: Deep integration, stateful operations
 
 ### Architecture Decisions
 
-- Hexagonal architecture chosen for clear separation
-- Monolithic first, can split to microservices later
-- Each tool is self-contained within the monolith
-- Shared infrastructure (auth, logging, metrics)
+- Three-layer hybrid: Skills → CLI + MCP
+- Skills-first validation strategy before heavy MCP investment
+- Repository structure: `cli/`, `mcp/`, `skills/`
+- RFDs will replace RFCs (dogfooding our own tool)
 
 ### For Claude Code
 
 When implementing:
 
-- Follow the patterns in `.claude/instructions.md`
-- Use the command `/create-mcp-tool` for new tools
-- Reference conventions in `.claude/context/team-conventions.md`
-- Keep domain logic pure (no external dependencies)
+- Use `/create-skill` for new Skills (once created)
+- Use `/create-cli-tool` for CLI tools (once created)
+- Use `/create-mcp-tool` for MCP tools (updated for `mcp/` directory)
+- Use `/create-rfd` for documentation (dogfooding!)
+- Reference hybrid architecture in `.claude/context/architecture.md`
 
 ## Blockers
 
-None currently, ready to start implementation!
+None currently! Making good progress on `.claude/` directory updates.
 
 ## Next Session Plan
 
-**Tomorrow's Focus**: First working MCP tool
+**Tomorrow's Focus**: RFD CLI MVP Implementation
 
-1. Complete echo tool implementation
-2. Test MCP registration
-3. Write integration tests
-4. Document in RFC format
+1. Implement RFD CLI commands (create, list, show, status)
+2. Test rfd-manager Skill
+3. Dogfood by converting RFC-001 and RFC-002 to RFD format
+4. Document Skills limitations discovered
 
 ## Command Shortcuts
 
 ```bash
-# Run tests
-cargo test
+# Create new Skill
+/create-skill "skill-name" "description"
 
-# Run with logging
-RUST_LOG=debug cargo run
+# Create new CLI tool
+/create-cli-tool "tool-name" "description"
 
-# Check code
-cargo clippy -- -D warnings
+# Create new MCP tool
+/create-mcp-tool "tool-name" "description"
 
-# Format code
-cargo fmt
+# Create new RFD
+/create-rfd "RFD Title" "Summary"
 
-# Build for release
-cargo build --release
+# Run RFD CLI MVP
+cargo run --bin rfd -- --help
 
-# Run benchmarks
-cargo bench
+# Check project status
+cat .claude/context/project-state.md
 ```
 
 ## References
 
-- [MCP Specification](https://modelcontextprotocol.io/)
-- [rmcp Documentation](https://docs.rs/rmcp)
-- [Project Vision](/docs/VISION.md)
-- [S-tier Principles Research](.claude/instructions.md)
+- [Project Vision](/docs/VISION.md) - Updated with hybrid architecture
+- [Architecture Guide](/.claude/context/architecture.md) - Three-layer model
+- [RFC-002: RFD CLI Tool](/docs/design/features/RFC-002-rfd-cli.md)
+- [Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
+
+## Current Sprint Progress
+
+**Week 1-2 (Late Oct 2025)** - Skills Infrastructure & RFD CLI MVP:
+
+- [x] Hybrid architecture decision made
+- [x] Repository restructured (cli/, mcp/, skills/)
+- [x] RFD CLI skeleton created
+- [x] VISION.md updated
+- [x] RFC-002 written
+- [x] rfd-manager Skill spec created
+- [x] `.claude/` directory MCP references fixed
+- [ ] Skills scaffolding infrastructure
+- [ ] CLI tool scaffolding infrastructure
+- [ ] RFD CLI MVP functional
+- [ ] First Skill (rfd-manager) tested
+- [ ] ADR-002 written
 
 ---
 
-_Session notes are ephemeral. Important decisions should be moved to `context/`
-or `knowledge/`._
+_Session notes are ephemeral. Important decisions should be moved to `context/` or `knowledge/`._

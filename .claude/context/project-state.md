@@ -56,7 +56,7 @@
 
 ```
 Total Lines of Code: ~1,000 (Rust)
-  - cli/rfd_cli: ~200 lines (skeleton)
+  - cli/rfd: ~200 lines (skeleton)
   - mcp/git_workflow: ~800 lines (paused)
 Documentation Lines: ~1,500
 Test Coverage: TBD (will establish with RFD CLI)
