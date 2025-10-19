@@ -37,6 +37,42 @@ thiserror = "1"
 # Colors and terminal output
 colored = "2"
 
+# Configuration
+toml = "0.5"
+dirs = "5"
+once_cell = "1.19"
+
+[dev-dependencies]
+# Testing utilities
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+
 [[bin]]
 name = "rfd"
 path = "src/main.rs"
+
+# Optimization for release builds
+#
+# For junior developers: These settings optimize for binary size and startup time,
+# which are critical for CLI tools. The trade-off is longer compilation time.
+[profile.release]
+# Link-time optimization: Optimizes across all crates, not just within each one
+# This can reduce binary size by 10-30% and improve performance
+lto = true
+
+# Code generation units: Using 1 allows better optimization but slower compilation
+# For release builds, we prioritize runtime performance over build time
+codegen-units = 1
+
+# Optimize for size while maintaining good performance
+# "z" is more aggressive than "s" for size reduction
+opt-level = "z"
+
+# Strip debug symbols from the binary
+# This significantly reduces binary size (often 50%+ reduction)
+strip = true
+
+# Panic behavior: "abort" is smaller and faster than unwinding
+# CLI tools typically don't need unwinding, so this is a safe optimization
+panic = "abort"
