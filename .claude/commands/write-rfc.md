@@ -1,8 +1,26 @@
 # Command: Write RFC
 
-**Name**: write-rfc  
-**Description**: Generate an RFC for a new feature or significant change  
-**Parameters**: `$FEATURE_NAME`, `$PROBLEM_STATEMENT`  
+> **⚠️ DEPRECATED**: Use `/create-rfd` instead
+>
+> This command is being replaced by `/create-rfd` which uses the RFD (Request for Discussion) format.
+>
+> **New command**: `/create-rfd "Title" "Author <email@example.com>"`
+>
+> **Why?** RFDs provide:
+> - Structured YAML frontmatter (agent-parseable)
+> - CLI tool for management (`cargo run --bin rfd`)
+> - State machine for lifecycle tracking
+> - Better agent-friendliness
+>
+> **Documentation**: `.claude/commands/create-rfd.md`
+>
+> This command is kept for reference during the transition period.
+
+---
+
+**Name**: write-rfc
+**Description**: Generate an RFC for a new feature or significant change
+**Parameters**: `$FEATURE_NAME`, `$PROBLEM_STATEMENT`
 **Example**: `/write-rfc "Tool Registry" "Need a way to discover and manage all MCP tools"`
 
 ---
