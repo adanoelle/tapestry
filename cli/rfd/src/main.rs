@@ -143,7 +143,7 @@ enum Commands {
         id: String,
 
         /// Field to update
-        #[arg(short, long)]
+        #[arg(long)]
         field: String,
 
         /// New value
