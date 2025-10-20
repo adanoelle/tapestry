@@ -77,7 +77,6 @@ pub struct RfdConfig {
     pub output: OutputSection,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RfdSection {
     /// Directory where RFDs are stored
@@ -245,16 +244,13 @@ impl RfdConfig {
             let padding_str = &format_str[2..format_str.len() - 2];
 
             // Parse "04" → 4 (as usize)
-            let padding: usize = padding_str
-                .parse()
-                .map_err(|_| RfdError::ConfigError {
-                    message: format!(
-                        "Invalid padding in id_format '{}': '{}' is not a valid number. \
+            let padding: usize = padding_str.parse().map_err(|_| RfdError::ConfigError {
+                message: format!(
+                    "Invalid padding in id_format '{}': '{}' is not a valid number. \
                          Expected format like '{{:04d}}' where '04' is the padding width.",
-                        format_str,
-                        padding_str
-                    ),
-                })?;
+                    format_str, padding_str
+                ),
+            })?;
 
             // Format number with zero padding
             // Example: number=42, padding=4 → "0042"

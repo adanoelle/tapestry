@@ -38,7 +38,7 @@ fn test_create_rfd_success() {
     let temp_dir = setup_test_env();
 
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Test RFD",
@@ -65,7 +65,7 @@ fn test_create_with_json_output() {
     let temp_dir = setup_test_env();
 
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "JSON Test",
@@ -87,7 +87,7 @@ fn test_list_empty_directory() {
     let temp_dir = setup_test_env();
 
     rfd_cmd(&temp_dir)
-        .args(&["list"])
+        .args(["list"])
         .assert()
         .success()
         .stdout(predicate::str::contains("No RFDs found").or(predicate::str::contains("Found 0")));
@@ -99,7 +99,7 @@ fn test_list_shows_created_rfds() {
 
     // Create two RFDs
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "First RFD",
@@ -110,7 +110,7 @@ fn test_list_shows_created_rfds() {
         .success();
 
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Second RFD",
@@ -122,7 +122,7 @@ fn test_list_shows_created_rfds() {
 
     // List should show both
     rfd_cmd(&temp_dir)
-        .args(&["list"])
+        .args(["list"])
         .assert()
         .success()
         .stdout(predicate::str::contains("First RFD"))
@@ -136,7 +136,7 @@ fn test_list_with_json_output() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Test",
@@ -148,7 +148,7 @@ fn test_list_with_json_output() {
 
     // List as JSON
     rfd_cmd(&temp_dir)
-        .args(&["list", "--format", "json"])
+        .args(["list", "--format", "json"])
         .assert()
         .success()
         .stdout(predicate::str::starts_with("{"))
@@ -162,7 +162,7 @@ fn test_show_rfd() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Show Test",
@@ -174,7 +174,7 @@ fn test_show_rfd() {
 
     // Show the RFD
     rfd_cmd(&temp_dir)
-        .args(&["show", "1"])
+        .args(["show", "1"])
         .assert()
         .success()
         .stdout(predicate::str::contains("RFD 0001"))
@@ -187,7 +187,7 @@ fn test_show_nonexistent_rfd() {
     let temp_dir = setup_test_env();
 
     rfd_cmd(&temp_dir)
-        .args(&["show", "999"])
+        .args(["show", "999"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("not found").or(predicate::str::contains("NOT_FOUND")));
@@ -199,7 +199,7 @@ fn test_status_transition_draft_to_review() {
 
     // Create an RFD (starts in draft)
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Status Test",
@@ -211,14 +211,14 @@ fn test_status_transition_draft_to_review() {
 
     // Transition to review
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "review"])
+        .args(["status", "1", "--set", "review"])
         .assert()
         .success()
         .stdout(predicate::str::contains("review").or(predicate::str::contains("Updated")));
 
     // Verify state changed (state is nested in metadata)
     rfd_cmd(&temp_dir)
-        .args(&["show", "1", "--format", "json"])
+        .args(["show", "1", "--format", "json"])
         .assert()
         .success()
         .stdout(predicate::str::contains("review"));
@@ -230,7 +230,7 @@ fn test_status_idempotent() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Idempotent Test",
@@ -242,13 +242,13 @@ fn test_status_idempotent() {
 
     // Set to review
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "review"])
+        .args(["status", "1", "--set", "review"])
         .assert()
         .success();
 
     // Set to review again (should succeed)
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "review"])
+        .args(["status", "1", "--set", "review"])
         .assert()
         .success()
         .stdout(predicate::str::contains("already").or(predicate::str::contains("review")));
@@ -260,7 +260,7 @@ fn test_status_invalid_transition() {
 
     // Create an RFD (starts in draft)
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Invalid Transition Test",
@@ -272,7 +272,7 @@ fn test_status_invalid_transition() {
 
     // Try invalid transition: draft -> archived (should fail)
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "archived"])
+        .args(["status", "1", "--set", "archived"])
         .assert()
         .failure()
         .code(3) // State transition error
@@ -285,7 +285,7 @@ fn test_validate_valid_rfd() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Validate Test",
@@ -297,7 +297,7 @@ fn test_validate_valid_rfd() {
 
     // Validate should pass
     rfd_cmd(&temp_dir)
-        .args(&["validate", "1"])
+        .args(["validate", "1"])
         .assert()
         .success()
         .stdout(predicate::str::contains("valid"));
@@ -309,7 +309,7 @@ fn test_validate_with_json() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Validate JSON Test",
@@ -321,7 +321,7 @@ fn test_validate_with_json() {
 
     // Validate with JSON output
     rfd_cmd(&temp_dir)
-        .args(&["validate", "1", "--format", "json"])
+        .args(["validate", "1", "--format", "json"])
         .assert()
         .success()
         .stdout(predicate::str::starts_with("{"))
@@ -335,7 +335,7 @@ fn test_update_metadata() {
 
     // Create an RFD
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Update Test",
@@ -347,13 +347,13 @@ fn test_update_metadata() {
 
     // Update title
     rfd_cmd(&temp_dir)
-        .args(&["update", "1", "--field", "title", "--value", "New Title"])
+        .args(["update", "1", "--field", "title", "--value", "New Title"])
         .assert()
         .success();
 
     // Verify update
     rfd_cmd(&temp_dir)
-        .args(&["show", "1"])
+        .args(["show", "1"])
         .assert()
         .success()
         .stdout(predicate::str::contains("New Title"));
@@ -365,7 +365,7 @@ fn test_filter_by_status() {
 
     // Create RFDs in different states
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Draft RFD",
@@ -376,7 +376,7 @@ fn test_filter_by_status() {
         .success();
 
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Review RFD",
@@ -388,13 +388,13 @@ fn test_filter_by_status() {
 
     // Move second to review
     rfd_cmd(&temp_dir)
-        .args(&["status", "2", "--set", "review"])
+        .args(["status", "2", "--set", "review"])
         .assert()
         .success();
 
     // Filter by draft
     rfd_cmd(&temp_dir)
-        .args(&["list", "--status", "draft"])
+        .args(["list", "--status", "draft"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Draft RFD"))
@@ -402,7 +402,7 @@ fn test_filter_by_status() {
 
     // Filter by review
     rfd_cmd(&temp_dir)
-        .args(&["list", "--status", "review"])
+        .args(["list", "--status", "review"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Review RFD"))
@@ -415,7 +415,7 @@ fn test_workflow_draft_to_implemented() {
 
     // Create RFD (draft)
     rfd_cmd(&temp_dir)
-        .args(&[
+        .args([
             "create",
             "--title",
             "Workflow Test",
@@ -427,25 +427,25 @@ fn test_workflow_draft_to_implemented() {
 
     // draft -> review
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "review"])
+        .args(["status", "1", "--set", "review"])
         .assert()
         .success();
 
     // review -> accepted
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "accepted"])
+        .args(["status", "1", "--set", "accepted"])
         .assert()
         .success();
 
     // accepted -> implemented
     rfd_cmd(&temp_dir)
-        .args(&["status", "1", "--set", "implemented"])
+        .args(["status", "1", "--set", "implemented"])
         .assert()
         .success();
 
     // Verify final state (state is nested in metadata)
     rfd_cmd(&temp_dir)
-        .args(&["show", "1", "--format", "json"])
+        .args(["show", "1", "--format", "json"])
         .assert()
         .success()
         .stdout(predicate::str::contains("implemented"));

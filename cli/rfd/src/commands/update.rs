@@ -3,12 +3,7 @@ use crate::error::{invalid_input, RfdError};
 use crate::fs::{find_rfd_by_id, load_rfd, save_rfd};
 use crate::output::Output;
 
-pub fn execute(
-    id: String,
-    field: String,
-    value: String,
-    output: &Output,
-) -> Result<(), RfdError> {
+pub fn execute(id: String, field: String, value: String, output: &Output) -> Result<(), RfdError> {
     let config = RfdConfig::load()?;
 
     // Find and load RFD
@@ -21,11 +16,7 @@ pub fn execute(
             doc.metadata.title = value;
         }
         "discussion" => {
-            doc.metadata.discussion = if value.is_empty() {
-                None
-            } else {
-                Some(value)
-            };
+            doc.metadata.discussion = if value.is_empty() { None } else { Some(value) };
         }
         "tags" => {
             // Parse comma-separated tags
@@ -47,7 +38,9 @@ pub fn execute(
     doc.metadata.touch();
 
     // Validate
-    doc.metadata.validate().map_err(|issues| RfdError::ValidationFailed { issues })?;
+    doc.metadata
+        .validate()
+        .map_err(|issues| RfdError::ValidationFailed { issues })?;
 
     // Save
     save_rfd(&doc, &config)?;

@@ -102,7 +102,7 @@ enum Commands {
         author: String,
 
         /// Template to use (default: "default")
-        #[arg(short = 't', long, default_value = "default")]
+        #[arg(long, default_value = "default")]
         template: String,
     },
 
@@ -143,11 +143,11 @@ enum Commands {
         id: String,
 
         /// Field to update
-        #[arg(short, long)]
+        #[arg(long)]
         field: String,
 
         /// New value
-        #[arg(short, long)]
+        #[arg(long)]
         value: String,
     },
 
@@ -190,7 +190,9 @@ fn main() {
 
         Commands::Status { id, set } => commands::status::execute(id, set, &output),
 
-        Commands::Update { id, field, value } => commands::update::execute(id, field, value, &output),
+        Commands::Update { id, field, value } => {
+            commands::update::execute(id, field, value, &output)
+        }
 
         Commands::Validate { id } => commands::validate::execute(id, &output),
     };

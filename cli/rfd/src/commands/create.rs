@@ -27,7 +27,9 @@ pub fn execute(
     let metadata = RfdMetadata::new(title.clone(), vec![author]);
 
     // Validate metadata
-    metadata.validate().map_err(|issues| RfdError::ValidationFailed { issues })?;
+    metadata
+        .validate()
+        .map_err(|issues| RfdError::ValidationFailed { issues })?;
 
     // Render template
     let template_engine = TemplateEngine::new(&config)?;

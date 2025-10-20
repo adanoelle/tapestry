@@ -61,10 +61,8 @@ fn matches_filters(
 ) -> Result<bool, RfdError> {
     // Check status filter
     if let Some(ref status_str) = status_filter {
-        let target_state: RfdState = status_str.parse().map_err(|e| {
-            RfdError::InvalidInput {
-                message: format!("Invalid status filter: {}", e),
-            }
+        let target_state: RfdState = status_str.parse().map_err(|e| RfdError::InvalidInput {
+            message: format!("Invalid status filter: {}", e),
         })?;
 
         if doc.metadata.state != target_state {
@@ -74,9 +72,11 @@ fn matches_filters(
 
     // Check author filter (case-insensitive substring match)
     if let Some(ref author_str) = author_filter {
-        let matches = doc.metadata.authors.iter().any(|a| {
-            a.to_lowercase().contains(&author_str.to_lowercase())
-        });
+        let matches = doc
+            .metadata
+            .authors
+            .iter()
+            .any(|a| a.to_lowercase().contains(&author_str.to_lowercase()));
 
         if !matches {
             return Ok(false);
