@@ -69,10 +69,6 @@
             # Claude Code with automatic updates via sadjow/claude-code-nix
             # Updates hourly from npm, with Cachix binary cache
             claude-code-nix.packages.${system}.default
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-            # macOS-specific dependencies
-            pkgs.darwin.apple_sdk.frameworks.Security
-            pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             # Linux-specific dependencies for static builds
             pkgs.musl
