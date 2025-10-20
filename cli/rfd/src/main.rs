@@ -147,7 +147,7 @@ enum Commands {
         field: String,
 
         /// New value
-        #[arg(short, long)]
+        #[arg(long)]
         value: String,
     },
 
