@@ -65,20 +65,17 @@
             fd                    # Fast file finding
             figlet                # ASCII art banners
 
-            # Cross-compilation support
-            cross
-
             # AI assistance
             # Claude Code with automatic updates via sadjow/claude-code-nix
             # Updates hourly from npm, with Cachix binary cache
             claude-code-nix.packages.${system}.default
-          ] ++ lib.optionals stdenv.isDarwin [
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
             # macOS-specific dependencies
-            darwin.apple_sdk.frameworks.Security
-            darwin.apple_sdk.frameworks.SystemConfiguration
-          ] ++ lib.optionals stdenv.isLinux [
+            pkgs.darwin.apple_sdk.frameworks.Security
+            pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             # Linux-specific dependencies for static builds
-            musl
+            pkgs.musl
           ];
           
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
