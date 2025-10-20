@@ -31,16 +31,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v25
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+        uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Setup Cachix
-        uses: cachix/cachix-action@v14
-        with:
-          name: devenv
-          skipPush: true
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Validate flake structure
         run: nix flake check --show-trace
