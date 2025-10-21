@@ -11,6 +11,7 @@
 //!
 //! - [`create`] - Create a new RFD from a template
 //! - [`list`] - List RFDs with optional filtering
+//! - [`search`] - Search RFDs by content
 //! - [`show`] - Display a specific RFD's details
 //! - [`status`] - Update an RFD's state
 //! - [`update`] - Modify RFD metadata fields
@@ -65,6 +66,7 @@
 
 pub mod create;
 pub mod list;
+pub mod search;
 pub mod show;
 pub mod status;
 pub mod update;
