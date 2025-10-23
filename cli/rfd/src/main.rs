@@ -62,12 +62,14 @@
 use clap::{Parser, Subcommand};
 use std::process;
 
+mod adapters;
 mod commands;
 mod config;
 mod document;
 mod error;
 mod fs;
 mod output;
+mod ports;
 mod template;
 
 use output::{Output, OutputFormat};
