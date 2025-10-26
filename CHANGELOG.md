@@ -8,8 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-10-26
+
 ### Added
 
+- Automatic release tagging when version is bumped in Cargo.toml
+- CHANGELOG.md for tracking version changes
+- Comprehensive release documentation (docs/RELEASING.md)
+- Release badge in README showing latest version
+- Improved installation instructions with working download links
 - Nix flake for reproducible development environments
 - Comprehensive CI/CD pipeline with cross-platform builds
 - Security auditing in CI workflow
@@ -21,6 +28,8 @@ and this project adheres to
 
 ### Changed
 
+- Modernized release workflow to use softprops/action-gh-release@v2
+- Auto-extract release notes from CHANGELOG.md
 - Temporarily disabled Nix Environment Check workflow pending nixpkgs fixes
 
 ## [0.1.0] - 2025-10-26
@@ -43,5 +52,6 @@ and this project adheres to
 - Startup time: ~1ms (cold start)
 - Memory usage: ~5MB peak
 
-[Unreleased]: https://github.com/adanoelle/tapestry/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/adanoelle/tapestry/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/adanoelle/tapestry/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/adanoelle/tapestry/releases/tag/v0.1.0
