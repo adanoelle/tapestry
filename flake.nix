@@ -44,7 +44,6 @@
             # Rust development tools
             cargo-watch           # Auto-rebuild on file changes
             cargo-audit           # Security vulnerability scanning
-            cargo-llvm-cov        # Code coverage
             cargo-edit            # Easily upgrade dependencies
 
             # MCP development
@@ -67,8 +66,9 @@
             # Updates hourly from npm, with Cachix binary cache
             claude-code-nix.packages.${system}.default
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-            # Linux-specific dependencies for static builds
-            pkgs.musl
+            # Linux-specific dependencies
+            pkgs.musl              # For static builds
+            cargo-llvm-cov         # Code coverage (broken on macOS in nixpkgs)
           ];
 
           RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
