@@ -49,9 +49,7 @@ jobs:
 
           if [ -z "$NOTES" ]; then
             # Fallback if version not in changelog
-            NOTES="Release version ${VERSION}
-
-See [CHANGELOG.md](https://github.com/adanoelle/tapestry/blob/${{ steps.get_version.outputs.version }}/CHANGELOG.md) for full details."
+            NOTES=$(printf "Release version %s\n\nSee [CHANGELOG.md](https://github.com/adanoelle/tapestry/blob/%s/CHANGELOG.md) for full details." "${VERSION}" "${{ steps.get_version.outputs.version }}")
           fi
 
           # Save to file to handle multiline content properly
