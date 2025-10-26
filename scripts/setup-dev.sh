@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Developer setup script for Tapestry
 # Sets up git hooks and installs necessary tools

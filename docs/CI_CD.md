@@ -79,6 +79,36 @@ All jobs use GitHub Actions cache to speed up builds:
 - Cargo index (`~/.cargo/git`)
 - Build artifacts (`target/`)
 
+### Nix Environment Check Workflow (`.github/workflows/nix.yml`)
+
+**Separate workflow** that validates the Nix development environment. Runs in parallel with main CI for faster feedback.
+
+**Triggered by:**
+- Pushes to `main` (only when flake files change)
+- Pull requests (only when flake files change)
+- Manual trigger via workflow_dispatch
+
+**Jobs:**
+
+1. **Nix Flake Validation** - Tests on Linux and macOS
+   - Validates `flake.nix` structure with `nix flake check`
+   - Tests that `nix develop` shell can be created
+   - Verifies all development tools are available (Rust, Cargo, Clippy, etc.)
+   - Builds the workspace within the Nix environment
+   - Runs tests within the Nix environment
+   - Ensures Nix users have a working development environment
+
+**Caching Strategy:**
+- Nix store (via Cachix) - dramatically speeds up subsequent runs
+- First run: ~10-15 minutes (builds Rust toolchain)
+- Cached runs: ~2-5 minutes
+
+**Why separate?**
+- Doesn't slow down standard CI (runs in parallel)
+- Only runs when flake files change (efficient)
+- Clear separation between standard and Nix environments
+- Non-Nix users get faster feedback
+
 ### Release Workflow (`.github/workflows/release.yml`)
 
 Triggered when you push a tag matching `v*.*.*` (e.g., `v1.0.0`,
@@ -310,6 +340,45 @@ git push origin v1.0.0-beta.1
 
 The release workflow will automatically mark it as a pre-release.
 
+### Nix Development Environment
+
+The project provides a Nix flake for reproducible development environments.
+
+**Testing the Nix environment:**
+
+```bash
+# Validate flake structure
+nix flake check
+
+# Enter dev shell
+nix develop
+
+# Test tools are available
+rustc --version
+cargo --version
+cargo clippy --version
+```
+
+**CI validates the Nix environment on every PR:**
+
+- Ensures `flake.nix` is valid
+- Verifies all tools are available in the dev shell
+- Builds and tests the project within the Nix environment
+- Tests on both Linux and macOS
+
+**Common Nix issues:**
+
+```bash
+# Flake won't build
+nix flake check --show-trace  # Get detailed error info
+
+# Update flake inputs
+nix flake update
+
+# Clean Nix cache if corrupted
+nix-collect-garbage -d
+```
+
 ### Hotfix Releases
 
 For patch releases:
@@ -470,6 +539,52 @@ chmod +x .githooks/*
 # (CI will still run it)
 ```
 
+### Nix Flake Issues
+
+**Nix flake check fails:**
+
+```bash
+# Get detailed error trace locally
+nix flake check --show-trace
+
+# Common issues:
+# 1. Undefined variables - ensure all variables are properly scoped with pkgs.*
+# 2. Missing packages - verify package exists: nix search nixpkgs <package-name>
+# 3. Syntax errors - check Nix expression syntax
+```
+
+**Dev shell fails to build:**
+
+```bash
+# Test locally
+nix develop --show-trace
+
+# Update flake inputs
+nix flake update
+
+# Clear build cache
+nix-collect-garbage -d
+nix develop
+```
+
+**Tools missing in dev shell:**
+
+```bash
+# Verify tool is in buildInputs in flake.nix
+# Test if available:
+nix develop --command which <tool-name>
+
+# Test tool runs:
+nix develop --command <tool-name> --version
+```
+
+**CI Nix job slow:**
+
+- Cachix is configured to cache Nix derivations
+- First run will be slow (~10-15 min) while building Rust toolchain
+- Subsequent runs should be much faster (~2-3 min)
+- Check Cachix cache hit rate if consistently slow
+
 ### Release Issues
 
 **Release workflow fails:**
@@ -514,6 +629,12 @@ Required GitHub secrets:
 - Test (per platform): < 5 minutes
 - Total CI time: < 10 minutes (parallel jobs)
 
+**Nix Workflow (separate):**
+
+- Nix Check (first run): < 15 minutes
+- Nix Check (cached): < 3 minutes
+- Runs in parallel with CI
+
 **Release Workflow:**
 
 - Build per platform: < 5 minutes
@@ -553,6 +674,137 @@ Required GitHub secrets:
    - Makes changelogs easier to generate
    - Helps with automated releases
 
+6. **Test Nix flake changes locally**
+   - Run `nix flake check` before pushing
+   - Test `nix develop` works
+   - Saves CI time on Nix jobs
+
+## Performance Monitoring
+
+Tapestry provides scripts to monitor CI performance over time, helping you track trends and detect regressions.
+
+### Monitor Current Performance
+
+Use `monitor-ci-performance.sh` to analyze recent workflow runs:
+
+```bash
+# Quick check - last 10 runs
+./scripts/monitor-ci-performance.sh --limit 10
+
+# Detailed report - last 30 runs
+./scripts/monitor-ci-performance.sh --limit 30
+
+# Analyze specific workflow
+./scripts/monitor-ci-performance.sh --workflow "CI" --limit 30
+
+# Compare CI and Nix workflows
+./scripts/monitor-ci-performance.sh --compare "CI" "Nix Environment Check"
+
+# Export data for analysis
+./scripts/monitor-ci-performance.sh --limit 50 --export metrics.csv
+```
+
+**Output includes:**
+- Success rate statistics
+- Duration metrics (average, median, P95, P99)
+- Cache hit rate estimates (for Nix workflows)
+- Performance assessment (excellent/good/needs attention)
+- Recent failures
+
+### Track Trends Over Time
+
+Use `track-ci-trends.sh` to capture daily metrics:
+
+```bash
+# Track all workflows
+./scripts/track-ci-trends.sh
+
+# Track specific workflow
+./scripts/track-ci-trends.sh "CI"
+
+# View historical trends
+cat .github/ci-metrics.csv | column -t -s,
+```
+
+**The script will:**
+- Capture metrics to `.github/ci-metrics.csv`
+- Detect performance regressions (>20% slower than baseline)
+- Alert if P95 exceeds 15 minutes
+- Track cache hit rates over time
+
+### Recommended Monitoring Schedule
+
+**Weekly (manual):**
+```bash
+# Monday morning check
+./scripts/monitor-ci-performance.sh --limit 30
+```
+
+**Daily (optional automation):**
+```bash
+# Add to cron or run manually
+./scripts/track-ci-trends.sh
+git add .github/ci-metrics.csv
+git commit -m "chore: update CI metrics"
+```
+
+### Performance Targets
+
+**Median duration:**
+- ✅ Excellent: < 5 minutes
+- ⚠️ Acceptable: < 10 minutes
+- ❌ Needs attention: > 10 minutes
+
+**P95 duration:**
+- ✅ Excellent: < 10 minutes
+- ⚠️ Acceptable: < 15 minutes
+- ❌ Needs attention: > 15 minutes
+
+**Success rate:**
+- ✅ Excellent: > 95%
+- ⚠️ Acceptable: > 90%
+- ❌ Needs attention: < 90%
+
+**Cache hit rate (Nix workflows):**
+- ✅ Excellent: > 80%
+- ⚠️ Acceptable: > 60%
+- ❌ Needs attention: < 60%
+
+### Interpreting Results
+
+**Fast median, high P95:**
+- Cache is working well
+- Occasional cache misses or flake updates
+- Normal behavior for Nix workflows
+
+**Increasing trend:**
+- Dependencies growing
+- Flake.lock updates causing rebuilds
+- Consider optimization
+
+**High failure rate:**
+- Flaky tests
+- Environmental issues
+- Code quality concerns
+
+### When to Investigate
+
+**Immediate action needed:**
+- Median > 15 minutes
+- P95 > 20 minutes
+- Success rate < 85%
+- Regression > 50% week-over-week
+
+**Monitor closely:**
+- Gradual upward trend in median
+- Increasing cache miss rate
+- Success rate declining
+
+**Acceptable:**
+- Temporary spikes in P95 (cache misses)
+- Minor variations day-to-day
+- Stable median over time
+
 ## References
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
@@ -560,3 +812,4 @@ Required GitHub secrets:
 - [Semantic Versioning](https://semver.org/)
 - [cargo-audit](https://github.com/RustSec/rustsec/tree/main/cargo-audit)
 - [cargo-llvm-cov](https://github.com/taiki-e/cargo-llvm-cov)
+- [GitHub CLI Documentation](https://cli.github.com/manual/)

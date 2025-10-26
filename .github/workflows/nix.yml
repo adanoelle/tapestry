@@ -1,0 +1,74 @@
+name: Nix Environment Check
+
+# Temporarily disabled due to nixpkgs glibc 2.40 compatibility issues
+# See: https://github.com/adanoelle/tapestry/issues/4
+# Re-enable after nixpkgs resolves Rust toolchain linker errors
+on:
+  workflow_dispatch:  # Manual trigger only
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'flake.nix'
+  #     - 'flake.lock'
+  #     - '.github/workflows/nix.yml'
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - 'flake.nix'
+  #     - 'flake.lock'
+  #     - '.github/workflows/nix.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  nix-check:
+    name: Nix Flake Validation
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Validate flake structure
+        run: nix flake check --show-trace
+
+      - name: Test dev shell creation
+        run: |
+          nix develop --command bash -c "echo '✓ Dev shell loaded successfully'"
+
+      - name: Verify development tools
+        run: |
+          nix develop --command bash -c "
+            echo '=== Verifying Tool Availability ==='
+            echo 'Rust:' \$(rustc --version)
+            echo 'Cargo:' \$(cargo --version)
+            echo 'Clippy:' \$(cargo clippy --version)
+            echo 'Rustfmt:' \$(rustfmt --version)
+            echo 'Git:' \$(git --version)
+            echo 'GitHub CLI:' \$(gh --version | head -1)
+            echo 'jq:' \$(jq --version)
+            echo 'ripgrep:' \$(rg --version | head -1)
+            echo 'fd:' \$(fd --version)
+            echo '=== All tools verified ==='
+          "
+
+      - name: Build workspace in Nix environment
+        run: |
+          nix develop --command bash -c "
+            cargo check --workspace --all-targets --all-features
+          "
+
+      - name: Run tests in Nix environment
+        run: |
+          nix develop --command bash -c "
+            cargo test --workspace --all-features
+          "
