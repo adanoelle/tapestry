@@ -35,10 +35,45 @@ See `.claude/instructions.md` for detailed principles.
 ### Pull Request Process
 
 1. **Branch naming**: `feat/tool-name`, `fix/issue`, `docs/topic`
-2. **Commit messages**: Follow conventional commits format
-3. **Tests**: All tests must pass
-4. **Linting**: `cargo fmt` and `cargo clippy` clean
-5. **Documentation**: Update relevant docs in same PR
+2. **Update CHANGELOG.md**: Add entry under `[Unreleased]` section (REQUIRED for
+   functional changes)
+3. **Commit messages**: Follow conventional commits format
+4. **Tests**: All tests must pass
+5. **Linting**: `cargo fmt` and `cargo clippy` clean
+6. **Documentation**: Update relevant docs in same PR
+
+#### CHANGELOG Guidelines
+
+**Always update** CHANGELOG.md for:
+
+- ✅ New features (`### Added`)
+- ✅ Bug fixes (`### Fixed`)
+- ✅ Breaking changes (`### Changed` + note)
+- ✅ Deprecations (`### Deprecated`)
+- ✅ Removed features (`### Removed`)
+
+**Skip** CHANGELOG for:
+
+- ❌ Typo fixes
+- ❌ Code formatting
+- ❌ Internal refactoring (no user impact)
+- ❌ CI/tooling changes
+
+**Example**:
+
+```markdown
+## [Unreleased]
+
+### Added
+
+- New `rfd search` command with regex and tag filters
+
+### Fixed
+
+- Template rendering bug with nested markdown sections
+```
+
+See [Keep a Changelog](https://keepachangelog.com/) for format details.
 
 ### Architecture Guidelines
 
