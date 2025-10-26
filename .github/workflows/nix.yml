@@ -1,20 +1,22 @@
 name: Nix Environment Check
 
+# Temporarily disabled due to nixpkgs glibc 2.40 compatibility issues
+# See: https://github.com/adanoelle/tapestry/issues/4
+# Re-enable after nixpkgs resolves Rust toolchain linker errors
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'flake.nix'
-      - 'flake.lock'
-      - '.github/workflows/nix.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'flake.nix'
-      - 'flake.lock'
-      - '.github/workflows/nix.yml'
-  # Allow manual trigger
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger only
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'flake.nix'
+  #     - 'flake.lock'
+  #     - '.github/workflows/nix.yml'
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - 'flake.nix'
+  #     - 'flake.lock'
+  #     - '.github/workflows/nix.yml'
 
 env:
   CARGO_TERM_COLOR: always
