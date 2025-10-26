@@ -14,7 +14,8 @@ for fast startup times (< 10ms) and zero-dependency distribution.
 ## Features
 
 - Create new RFD documents from templates
-- List and search existing RFDs
+- List and filter existing RFDs
+- **Search RFDs by content** with field-specific queries and filters
 - Update metadata without manual file editing
 - Validate RFD structure and conventions
 - JSON output for agent consumption
@@ -70,6 +71,31 @@ rfd create --title "Feature Proposal" --author "Name <email@example.com>"
 ```bash
 rfd list
 rfd list --status draft --json
+```
+
+### Search RFDs
+
+```bash
+# Basic text search
+rfd search "authentication"
+
+# Multiple terms (AND logic - all must match)
+rfd search "oauth api"
+
+# Search specific fields
+rfd search "security" --in title
+rfd search "database" --in content
+rfd search "api" --in tags
+
+# Case-sensitive search
+rfd search "OAuth" --case-sensitive
+
+# Combine search with filters
+rfd search "api" --status accepted
+rfd search "security" --author alice --limit 5
+
+# JSON output for agents
+rfd search "authentication" --format json
 ```
 
 ### Update Status
