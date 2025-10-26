@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
 
     # Claude Code with automatic updates and binary cache
@@ -14,30 +13,29 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, claude-code-nix }:
+  outputs = { self, nixpkgs, flake-utils, claude-code-nix }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
-          inherit system overlays;
+          inherit system;
         };
-        
-        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rust-analyzer" "clippy" "rustfmt" ];
-          targets = [
-            "x86_64-unknown-linux-gnu"
-            "x86_64-unknown-linux-musl"
-            "x86_64-apple-darwin"
-            "aarch64-apple-darwin"
-            "x86_64-pc-windows-gnu"
-          ];
-        };
+
       in
       {
         devShells.default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            # Build toolchain
+            gcc
+            pkg-config
+          ];
+
           buildInputs = with pkgs; [
-            # Rust toolchain
-            rustToolchain
+            # Rust toolchain - using nixpkgs native packages to avoid glibc incompatibility
+            cargo
+            rustc
+            rustfmt
+            clippy
+            rust-analyzer
 
             # Development tools
             gh                    # GitHub CLI
@@ -46,7 +44,6 @@
             # Rust development tools
             cargo-watch           # Auto-rebuild on file changes
             cargo-audit           # Security vulnerability scanning
-            cargo-llvm-cov        # Code coverage
             cargo-edit            # Easily upgrade dependencies
 
             # MCP development
@@ -56,7 +53,6 @@
             mdbook                # For potential docs site
 
             # System dependencies
-            pkg-config
             openssl
 
             # CLI utilities
@@ -65,24 +61,18 @@
             fd                    # Fast file finding
             figlet                # ASCII art banners
 
-            # Cross-compilation support
-            cross
-
             # AI assistance
             # Claude Code with automatic updates via sadjow/claude-code-nix
             # Updates hourly from npm, with Cachix binary cache
             claude-code-nix.packages.${system}.default
-          ] ++ lib.optionals stdenv.isDarwin [
-            # macOS-specific dependencies
-            darwin.apple_sdk.frameworks.Security
-            darwin.apple_sdk.frameworks.SystemConfiguration
-          ] ++ lib.optionals stdenv.isLinux [
-            # Linux-specific dependencies for static builds
-            musl
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            # Linux-specific dependencies
+            pkgs.musl              # For static builds
+            cargo-llvm-cov         # Code coverage (broken on macOS in nixpkgs)
           ];
-          
-          RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
-          
+
+          RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+
           shellHook = ''
             # Set up git hooks
             git config core.hooksPath .githooks 2>/dev/null || true

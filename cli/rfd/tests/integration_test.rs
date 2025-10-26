@@ -865,14 +865,7 @@ fn test_search_combined_filters() {
     // Search: query="api" + author="alice" + status="review"
     rfd_cmd(&temp_dir)
         .args([
-            "search",
-            "api",
-            "--author",
-            "alice",
-            "--status",
-            "review",
-            "--limit",
-            "5",
+            "search", "api", "--author", "alice", "--status", "review", "--limit", "5",
         ])
         .assert()
         .success()

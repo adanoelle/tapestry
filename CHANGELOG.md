@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Tapestry project will be documented in this file.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -20,7 +20,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive documentation and examples (`examples/search.sh`)
   - Performance: ~110ms for 100 RFDs (sequential search, no indexing)
 
-## [0.1.0] - 2025-10-19
+## [0.2.0] - 2025-10-26
+
+### Added
+
+- Automatic release tagging when version is bumped in Cargo.toml
+- CHANGELOG.md for tracking version changes
+- Comprehensive release documentation (docs/RELEASING.md)
+- Release badge in README showing latest version
+- Improved installation instructions with working download links
+- Nix flake for reproducible development environments
+- Comprehensive CI/CD pipeline with cross-platform builds
+- Security auditing in CI workflow
+
+### Fixed
+
+- Nix environment compatibility issues with glibc 2.40
+- macOS build failure due to cargo-llvm-cov incompatibility
+
+### Changed
+
+- Modernized release workflow to use softprops/action-gh-release@v2
+- Auto-extract release notes from CHANGELOG.md
+- Temporarily disabled Nix Environment Check workflow pending nixpkgs fixes
+
+## [0.1.0] - 2025-10-26
 
 ### Added
 
@@ -40,7 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - YAML frontmatter parsing
   - Configuration via `.rfd/config.toml`
   - 32 tests with >80% coverage
-  - Performance: 2.4MB binary, 1ms startup, ~5MB memory
 
 - **CI/CD Pipeline**
   - GitHub Actions for testing, linting, formatting
@@ -61,25 +84,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Setup script for non-Nix users
   - Comprehensive `.claude/` context for AI collaboration
 
-### Changed
+### Performance
 
-- N/A (initial release)
-
-### Deprecated
-
-- N/A
-
-### Removed
-
-- N/A
-
-### Fixed
-
-- N/A
-
-### Security
-
-- N/A
+- Binary size: 2.4MB (stripped, optimized)
+- Startup time: ~1ms (cold start)
+- Memory usage: ~5MB peak
 
 ---
 
@@ -103,5 +112,6 @@ We use [Semantic Versioning](https://semver.org/):
 
 ---
 
-[Unreleased]: https://github.com/adanoelle/tapestry/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/adanoelle/tapestry/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/adanoelle/tapestry/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/adanoelle/tapestry/releases/tag/v0.1.0

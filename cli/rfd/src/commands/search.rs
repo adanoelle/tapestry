@@ -119,10 +119,7 @@ pub fn execute(
     };
 
     // Parse query into terms (split on whitespace)
-    let terms: Vec<String> = query
-        .split_whitespace()
-        .map(|s| s.to_string())
-        .collect();
+    let terms: Vec<String> = query.split_whitespace().map(|s| s.to_string()).collect();
 
     if terms.is_empty() {
         return Err(RfdError::InvalidInput {
@@ -298,10 +295,7 @@ mod tests {
 
     #[test]
     fn test_search_scope_from_str() {
-        assert_eq!(
-            SearchScope::from_str("title").unwrap(),
-            SearchScope::Title
-        );
+        assert_eq!(SearchScope::from_str("title").unwrap(), SearchScope::Title);
         assert_eq!(
             SearchScope::from_str("content").unwrap(),
             SearchScope::Content
@@ -314,10 +308,7 @@ mod tests {
         assert_eq!(SearchScope::from_str("all").unwrap(), SearchScope::All);
 
         // Case insensitive
-        assert_eq!(
-            SearchScope::from_str("TITLE").unwrap(),
-            SearchScope::Title
-        );
+        assert_eq!(SearchScope::from_str("TITLE").unwrap(), SearchScope::Title);
 
         // Invalid scope
         assert!(SearchScope::from_str("invalid").is_err());
@@ -328,12 +319,7 @@ mod tests {
         let doc = create_test_doc("Authentication System", "Some content", vec![]);
         let terms = vec!["authentication".to_string()];
 
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Title,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Title, false));
         assert!(matches_search(&doc, &terms, &SearchScope::All, false));
     }
 
@@ -342,33 +328,22 @@ mod tests {
         let doc = create_test_doc("Title", "OAuth integration details", vec![]);
         let terms = vec!["oauth".to_string()];
 
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Content,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Content, false));
         assert!(matches_search(&doc, &terms, &SearchScope::All, false));
-        assert!(!matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Title,
-            false
-        ));
+        assert!(!matches_search(&doc, &terms, &SearchScope::Title, false));
     }
 
     #[test]
     fn test_search_finds_matching_tags() {
-        let doc = create_test_doc("Title", "Content", vec!["security".to_string(), "api".to_string()]);
+        let doc = create_test_doc(
+            "Title",
+            "Content",
+            vec!["security".to_string(), "api".to_string()],
+        );
         let terms = vec!["security".to_string()];
 
         assert!(matches_search(&doc, &terms, &SearchScope::Tags, false));
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Metadata,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Metadata, false));
         assert!(!matches_search(&doc, &terms, &SearchScope::All, false));
     }
 
@@ -378,12 +353,7 @@ mod tests {
         let terms = vec!["oauth".to_string(), "api".to_string()];
 
         // Both terms in title - should match
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Title,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Title, false));
 
         // Only one term in content - should NOT match
         let terms2 = vec!["oauth".to_string(), "missing".to_string()];
@@ -396,12 +366,7 @@ mod tests {
         let terms = vec!["oauth".to_string()];
 
         // Case insensitive should match
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Title,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Title, false));
     }
 
     #[test]
@@ -429,34 +394,15 @@ mod tests {
 
     #[test]
     fn test_search_metadata_scope() {
-        let doc = create_test_doc(
-            "Title",
-            "Content",
-            vec!["security".to_string()],
-        );
+        let doc = create_test_doc("Title", "Content", vec!["security".to_string()]);
         let terms = vec!["alice".to_string()]; // Author name
 
         // Should match in metadata scope (includes authors)
-        assert!(matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Metadata,
-            false
-        ));
+        assert!(matches_search(&doc, &terms, &SearchScope::Metadata, false));
 
         // Should NOT match in title or content scope
-        assert!(!matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Title,
-            false
-        ));
-        assert!(!matches_search(
-            &doc,
-            &terms,
-            &SearchScope::Content,
-            false
-        ));
+        assert!(!matches_search(&doc, &terms, &SearchScope::Title, false));
+        assert!(!matches_search(&doc, &terms, &SearchScope::Content, false));
     }
 
     #[test]

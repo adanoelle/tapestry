@@ -1,0 +1,125 @@
+name: CHANGELOG Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check CHANGELOG.md updated
+        id: changelog_check
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          # Check if CHANGELOG.md was modified
+          if echo "$CHANGED_FILES" | grep -q "^CHANGELOG.md$"; then
+            echo "✅ CHANGELOG.md was updated"
+            echo "updated=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if this is a trivial change (docs/CI only)
+          NON_TRIVIAL=$(echo "$CHANGED_FILES" | grep -v -E '\.(md|yml|yaml)$|^\.github/|^docs/|^scripts/' || true)
+
+          if [ -z "$NON_TRIVIAL" ]; then
+            echo "ℹ️  Only trivial files changed (docs/CI/scripts), CHANGELOG update not required"
+            echo "updated=skipped" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Functional changes detected without CHANGELOG update
+          echo "⚠️  Functional changes detected but CHANGELOG.md not updated"
+          echo "updated=false" >> $GITHUB_OUTPUT
+          exit 0
+
+      - name: Comment on PR if CHANGELOG missing
+        if: steps.changelog_check.outputs.updated == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## ⚠️ CHANGELOG Update Reminder
+
+            This PR includes functional changes but **CHANGELOG.md** was not updated.
+
+            ### When to update CHANGELOG:
+            - ✅ New features (\`### Added\`)
+            - ✅ Bug fixes (\`### Fixed\`)
+            - ✅ Breaking changes (\`### Changed\` + note)
+            - ✅ Deprecations (\`### Deprecated\`)
+            - ✅ Removed features (\`### Removed\`)
+
+            ### Skip CHANGELOG for:
+            - ❌ Typo fixes
+            - ❌ Code formatting
+            - ❌ Internal refactoring (no user impact)
+            - ❌ CI/tooling changes
+
+            ### How to update:
+            Add your changes under the \`[Unreleased]\` section in CHANGELOG.md:
+
+            \`\`\`markdown
+            ## [Unreleased]
+
+            ### Added
+            - Your new feature description
+
+            ### Fixed
+            - Your bug fix description
+            \`\`\`
+
+            See [Keep a Changelog](https://keepachangelog.com/) for formatting guidelines.
+
+            ---
+
+            *This is a reminder, not a blocking check. If you believe this change doesn't need a CHANGELOG entry, you can proceed. The reviewer will make the final determination.*`;
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('CHANGELOG Update Reminder')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: message
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message
+              });
+            }
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.changelog_check.outputs.updated }}" = "true" ]; then
+            echo "✅ CHANGELOG.md updated - good to go!"
+          elif [ "${{ steps.changelog_check.outputs.updated }}" = "skipped" ]; then
+            echo "ℹ️  Trivial changes only - CHANGELOG update not required"
+          else
+            echo "⚠️  CHANGELOG.md not updated - please review if this is intentional"
+            echo "This is a reminder, not a blocking check."
+          fi

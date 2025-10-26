@@ -6,6 +6,7 @@
 [![Nix](https://img.shields.io/badge/nix-flake-7EBAE4?logo=nixos&logoColor=white)](https://nixos.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-5865F2)](https://modelcontextprotocol.io/)
 [![CI](https://github.com/adanoelle/tapestry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/adanoelle/tapestry/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/adanoelle/tapestry)](https://github.com/adanoelle/tapestry/releases/latest)
 
 ---
 
@@ -52,23 +53,32 @@ from day one.
 
 ### Installation
 
-**With Nix** (recommended):
+**Download Latest Release**:
 
 ```bash
-git clone https://github.com/yourusername/tapestry.git
-cd tapestry
-nix develop
+# Linux/macOS quick install
+curl -fsSL https://raw.githubusercontent.com/adanoelle/tapestry/main/scripts/install.sh | bash
+
+# Or download specific binary from releases
+# Visit: https://github.com/adanoelle/tapestry/releases/latest
 ```
 
-**Without Nix**:
+**Development Setup**:
 
 ```bash
-git clone https://github.com/yourusername/tapestry.git
+# With Nix (recommended)
+git clone https://github.com/adanoelle/tapestry.git
+cd tapestry
+nix develop
+
+# Without Nix
+git clone https://github.com/adanoelle/tapestry.git
 cd tapestry
 ./scripts/setup-dev.sh
 ```
 
-[Complete installation guide →](docs/GETTING_STARTED.md)
+[Complete installation guide →](docs/GETTING_STARTED.md) |
+[Latest Release →](https://github.com/adanoelle/tapestry/releases/latest)
 
 ### Quick Example
 
@@ -130,9 +140,9 @@ decisions through written proposals and collaborative review.
 
 ## Community
 
-- [GitHub Discussions](https://github.com/yourusername/tapestry/discussions) -
+- [GitHub Discussions](https://github.com/adanoelle/tapestry/discussions) -
   Questions and ideas
-- [GitHub Issues](https://github.com/yourusername/tapestry/issues) - Bug reports
+- [GitHub Issues](https://github.com/adanoelle/tapestry/issues) - Bug reports
 - [RFC Process](docs/design/meta/CONTRIBUTING.md#rfc-process) - Feature
   proposals
 
@@ -144,9 +154,12 @@ decisions through written proposals and collaborative review.
 
 ## Acknowledgments
 
-Built with inspiration from [Anthropic](https://anthropic.com),
-[Stripe](https://stripe.com), [Google](https://google.com), and
-[Oxide Computer](https://oxide.computer).
+Built with inspiration from
+
+- [Anthropic](https://anthropic.com),
+- [Stripe](https://stripe.com),
+- [Google](https://google.com), and
+- [Oxide Computer](https://oxide.computer).
 
 ---
 
