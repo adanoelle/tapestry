@@ -2,10 +2,10 @@
 name = "rfd"
 version = "0.1.0"
 edition = "2021"
-authors = ["Ada <ada@tapestry.dev>"]
+authors = ["adanoelle <ada@tapestrylabs.org>"]
 description = "CLI tool for managing RFD (Request for Discussion) documents"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/tapestry"
+repository = "https://github.com/adanoelle/tapestry"
 keywords = ["rfd", "documentation", "cli", "markdown"]
 categories = ["command-line-utilities", "development-tools"]
 
