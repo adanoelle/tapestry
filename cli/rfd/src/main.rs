@@ -100,8 +100,9 @@ enum Commands {
         title: String,
 
         /// Author name and email (e.g., "Name <email@example.com>")
+        /// If not provided, uses default_author from config
         #[arg(short, long)]
-        author: String,
+        author: Option<String>,
 
         /// Template to use (default: "default")
         #[arg(long, default_value = "default")]
@@ -186,7 +187,7 @@ fn main() {
             status,
             author,
             limit,
-        } => commands::list::execute(status, author, limit, &output),
+        } => commands::list::execute(status, author, limit, cli.verbose, &output),
 
         Commands::Show { id } => commands::show::execute(id, &output),
 

@@ -94,6 +94,10 @@ pub struct RfdSection {
     /// ID format string (e.g., "{:04d}" for 0001, 0002, etc.)
     #[serde(default = "default_id_format")]
     pub id_format: String,
+
+    /// Default author for new RFDs (e.g., "Name <email@example.com>")
+    #[serde(default)]
+    pub default_author: Option<String>,
 }
 
 impl Default for RfdSection {
@@ -102,6 +106,7 @@ impl Default for RfdSection {
             directory: default_directory(),
             template: default_template(),
             id_format: default_id_format(),
+            default_author: None,
         }
     }
 }
