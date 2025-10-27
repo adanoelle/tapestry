@@ -1,0 +1,78 @@
+name: Auto Tag Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/rfd/Cargo.toml'
+
+permissions:
+  contents: write
+
+jobs:
+  auto-tag:
+    name: Create Tag from Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history to check for existing tags
+
+      - name: Extract version from Cargo.toml
+        id: get_version
+        run: |
+          VERSION=$(grep -m 1 '^version = ' cli/rfd/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "raw_version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag ${{ steps.get_version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag ${{ steps.get_version.outputs.version }} does not exist"
+          fi
+
+      - name: Extract changelog for version
+        if: steps.check_tag.outputs.exists == 'false'
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.raw_version }}"
+
+          # Extract the section for this version from CHANGELOG.md
+          # This captures everything between [VERSION] and the next version header or end of file
+          NOTES=$(awk "/^## \[${VERSION}\]/,/^## \[/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
+
+          if [ -z "$NOTES" ]; then
+            # Fallback if version not in changelog
+            NOTES=$(printf "Release version %s\n\nSee [CHANGELOG.md](https://github.com/adanoelle/tapestry/blob/%s/CHANGELOG.md) for full details." "${VERSION}" "${{ steps.get_version.outputs.version }}")
+          fi
+
+          # Save to file to handle multiline content properly
+          echo "$NOTES" > /tmp/release_notes.txt
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "${{ steps.get_version.outputs.version }}" \
+            -m "Release ${{ steps.get_version.outputs.version }}" \
+            -m "$(cat /tmp/release_notes.txt)"
+
+          git push origin "${{ steps.get_version.outputs.version }}"
+
+          echo "✅ Created and pushed tag ${{ steps.get_version.outputs.version }}"
+
+      - name: Tag already exists
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "ℹ️  Tag ${{ steps.get_version.outputs.version }} already exists, skipping tag creation"
+          echo "If you want to create a new release, bump the version in cli/rfd/Cargo.toml"

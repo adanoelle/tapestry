@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Pre-commit hook for Tapestry
 # Runs formatting, linting, and tests before allowing commit

@@ -14,7 +14,8 @@ for fast startup times (< 10ms) and zero-dependency distribution.
 ## Features
 
 - Create new RFD documents from templates
-- List and search existing RFDs
+- List and filter existing RFDs
+- **Search RFDs by content** with field-specific queries and filters
 - Update metadata without manual file editing
 - Validate RFD structure and conventions
 - JSON output for agent consumption
@@ -23,18 +24,38 @@ for fast startup times (< 10ms) and zero-dependency distribution.
 
 ## Installation
 
+### Binary Release (Recommended)
+
+**Quick Install (Linux/macOS)**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/adanoelle/tapestry/main/scripts/install.sh | bash
+```
+
+**Manual Download**:
+
+Visit [Latest Release](https://github.com/adanoelle/tapestry/releases/latest) or:
+
+```bash
+# Linux x86_64
+curl -LO https://github.com/adanoelle/tapestry/releases/latest/download/rfd-linux-amd64.tar.gz
+tar xzf rfd-linux-amd64.tar.gz
+sudo mv rfd /usr/local/bin/
+
+# macOS Intel
+curl -LO https://github.com/adanoelle/tapestry/releases/latest/download/rfd-macos-amd64.tar.gz
+tar xzf rfd-macos-amd64.tar.gz
+sudo mv rfd /usr/local/bin/
+
+# macOS Apple Silicon
+curl -LO https://github.com/adanoelle/tapestry/releases/latest/download/rfd-macos-arm64.tar.gz
+tar xzf rfd-macos-arm64.tar.gz
+sudo mv rfd /usr/local/bin/
+```
+
 ### From Source
 
 ```bash
 cargo install --path .
-```
-
-### Binary Release (Coming Soon)
-
-```bash
-# Download latest release
-curl -L https://github.com/org/tapestry/releases/latest/download/rfd -o ~/.local/bin/rfd
-chmod +x ~/.local/bin/rfd
 ```
 
 ## Usage
@@ -50,6 +71,31 @@ rfd create --title "Feature Proposal" --author "Name <email@example.com>"
 ```bash
 rfd list
 rfd list --status draft --json
+```
+
+### Search RFDs
+
+```bash
+# Basic text search
+rfd search "authentication"
+
+# Multiple terms (AND logic - all must match)
+rfd search "oauth api"
+
+# Search specific fields
+rfd search "security" --in title
+rfd search "database" --in content
+rfd search "api" --in tags
+
+# Case-sensitive search
+rfd search "OAuth" --case-sensitive
+
+# Combine search with filters
+rfd search "api" --status accepted
+rfd search "security" --author alice --limit 5
+
+# JSON output for agents
+rfd search "authentication" --format json
 ```
 
 ### Update Status
@@ -194,9 +240,9 @@ Each example is an executable bash script with detailed comments. See
 - **Examples**: Check [examples/](examples/) for practical usage patterns
 - **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development guide
 - **Issues**: Found a bug?
-  [Open an issue](https://github.com/yourusername/tapestry/issues)
+  [Open an issue](https://github.com/adanoelle/tapestry/issues)
 - **Discussions**: Questions?
-  [Start a discussion](https://github.com/yourusername/tapestry/discussions)
+  [Start a discussion](https://github.com/adanoelle/tapestry/discussions)
 
 ## Related Projects
 

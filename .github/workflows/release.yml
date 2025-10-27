@@ -16,7 +16,6 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Get version from tag
@@ -26,40 +25,76 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Extract the section for this version from CHANGELOG.md
+          NOTES=$(awk "/^## \[${VERSION}\]/,/^## \[/" CHANGELOG.md | sed '1d;$d')
+
+          if [ -z "$NOTES" ]; then
+            NOTES="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md) for details."
+          fi
+
+          # Add installation instructions
+          cat > /tmp/release_body.md <<'EOF'
+          ## Installation
+
+          ### Quick Install (Linux/macOS)
+          ```bash
+          curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/install.sh | bash
+          ```
+
+          ### Manual Download
+
+          **Linux (x86_64)**:
+          ```bash
+          curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/rfd-linux-amd64.tar.gz
+          tar xzf rfd-linux-amd64.tar.gz
+          sudo mv rfd /usr/local/bin/
+          ```
+
+          **macOS (Intel)**:
+          ```bash
+          curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/rfd-macos-amd64.tar.gz
+          tar xzf rfd-macos-amd64.tar.gz
+          sudo mv rfd /usr/local/bin/
+          ```
+
+          **macOS (Apple Silicon)**:
+          ```bash
+          curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/rfd-macos-arm64.tar.gz
+          tar xzf rfd-macos-arm64.tar.gz
+          sudo mv rfd /usr/local/bin/
+          ```
+
+          **Windows**:
+          Download `rfd-windows-amd64.exe.zip`, extract, and add to your PATH.
+
+          ### Verify Installation
+          ```bash
+          rfd --version
+          ```
+
+          ## Changes
+
+          EOF
+
+          echo "$NOTES" >> /tmp/release_body.md
+          echo "" >> /tmp/release_body.md
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md" >> /tmp/release_body.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body_path: /tmp/release_body.md
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
-          body: |
-            Release ${{ github.ref }}
-
-            ## Installation
-
-            ### macOS (Homebrew)
-            ```bash
-            brew tap yourusername/tapestry
-            brew install rfd
-            ```
-
-            ### Linux
-            ```bash
-            # Download and install
-            curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/rfd-linux-amd64
-            chmod +x rfd-linux-amd64
-            sudo mv rfd-linux-amd64 /usr/local/bin/rfd
-            ```
-
-            ### Windows
-            Download the `.exe` file and add it to your PATH.
-
-            ## Changes
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md) for details.
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-release:
     name: Build Release
@@ -140,49 +175,13 @@ jobs:
           7z a ${{ matrix.asset_name }}.zip ${{ matrix.artifact_name }}
           certutil -hashfile ${{ matrix.asset_name }}.zip SHA256 > ${{ matrix.asset_name }}.zip.sha256
 
-      - name: Upload Release Asset (Unix tarball)
-        if: runner.os != 'Windows'
-        uses: actions/upload-release-asset@v1
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/${{ matrix.target }}/release/${{ matrix.asset_name }}.*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: target/${{ matrix.target }}/release/${{ matrix.asset_name }}.tar.gz
-          asset_name: ${{ matrix.asset_name }}.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload Release Asset (Unix checksum)
-        if: runner.os != 'Windows'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: target/${{ matrix.target }}/release/${{ matrix.asset_name }}.tar.gz.sha256
-          asset_name: ${{ matrix.asset_name }}.tar.gz.sha256
-          asset_content_type: text/plain
-
-      - name: Upload Release Asset (Windows zip)
-        if: runner.os == 'Windows'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: target/${{ matrix.target }}/release/${{ matrix.asset_name }}.zip
-          asset_name: ${{ matrix.asset_name }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset (Windows checksum)
-        if: runner.os == 'Windows'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: target/${{ matrix.target }}/release/${{ matrix.asset_name }}.zip.sha256
-          asset_name: ${{ matrix.asset_name }}.zip.sha256
-          asset_content_type: text/plain
 
   publish-crate:
     name: Publish to crates.io

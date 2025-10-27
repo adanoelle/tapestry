@@ -159,6 +159,32 @@ enum Commands {
         /// RFD ID
         id: String,
     },
+
+    /// Search RFDs by content
+    Search {
+        /// Search query (multiple terms use AND logic)
+        query: String,
+
+        /// Search scope (title, content, tags, metadata, all)
+        #[arg(long)]
+        r#in: Option<String>,
+
+        /// Enable case-sensitive search
+        #[arg(long)]
+        case_sensitive: bool,
+
+        /// Filter by status
+        #[arg(short, long)]
+        status: Option<String>,
+
+        /// Filter by author
+        #[arg(short, long)]
+        author: Option<String>,
+
+        /// Limit number of results
+        #[arg(short, long)]
+        limit: Option<usize>,
+    },
 }
 
 fn main() {
@@ -198,6 +224,15 @@ fn main() {
         }
 
         Commands::Validate { id } => commands::validate::execute(id, &output),
+
+        Commands::Search {
+            query,
+            r#in,
+            case_sensitive,
+            status,
+            author,
+            limit,
+        } => commands::search::execute(query, r#in, case_sensitive, status, author, limit, &output),
     };
 
     // Handle errors
