@@ -52,8 +52,10 @@
             # Documentation
             mdbook                # For potential docs site
 
-            # System dependencies
+            # System dependencies (CRITICAL: glibc must be explicit for Rust linking)
             openssl
+            glibc                 # Explicit glibc for Rust linker
+            glibc.static          # Static glibc for build scripts
 
             # CLI utilities
             jq                    # JSON processing (useful for testing CLI JSON output)
@@ -73,6 +75,10 @@
 
           RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
+          # Fix Rust linker to find glibc properly
+          # This is necessary because nixpkgs' rustc has a pre-built libstd that needs explicit glibc linking
+          RUSTFLAGS = "-C link-arg=-Wl,-rpath,${pkgs.lib.makeLibraryPath [ pkgs.glibc ]} -C link-arg=-L${pkgs.glibc}/lib";
+
           shellHook = ''
             # Set up git hooks
             git config core.hooksPath .githooks 2>/dev/null || true
@@ -81,6 +87,10 @@
             # Environment variables
             export RUST_BACKTRACE=1
             export CARGO_TERM_COLOR=always
+
+            # Rust linker configuration for glibc
+            export RUSTFLAGS="-C link-arg=-Wl,-rpath,${pkgs.lib.makeLibraryPath [ pkgs.glibc ]} -C link-arg=-L${pkgs.glibc}/lib"
+            export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.glibc pkgs.stdenv.cc.cc.lib ]}"
 
             # Create necessary directories
             mkdir -p .cache
