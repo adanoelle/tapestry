@@ -8,6 +8,7 @@ pub fn execute(
     status: Option<String>,
     author: Option<String>,
     limit: Option<usize>,
+    verbose: bool,
     output: &Output,
 ) -> Result<(), RfdError> {
     let config = RfdConfig::load()?;
@@ -29,8 +30,10 @@ pub fn execute(
                 rfds.push(RfdSummary::from(&doc));
             }
             Err(e) => {
-                // Skip files that fail to load (log in verbose mode?)
-                eprintln!("Warning: Failed to load {}: {}", path.display(), e);
+                // Skip files that fail to load - only log in verbose mode
+                if verbose {
+                    eprintln!("Warning: Failed to load {}: {}", path.display(), e);
+                }
             }
         }
     }

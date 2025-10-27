@@ -1,0 +1,2 @@
+date,workflow,avg_duration_min,median_duration_min,p95_duration_min,p99_duration_min,success_rate,total_runs,fast_runs,cache_hit_estimate
+2025-10-20,CI,4,5,5,5,30,10,1,10

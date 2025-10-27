@@ -7,11 +7,20 @@ use crate::template::TemplateEngine;
 
 pub fn execute(
     title: String,
-    author: String,
+    author: Option<String>,
     template: String,
     output: &Output,
 ) -> Result<(), RfdError> {
     let config = RfdConfig::load()?;
+
+    // Determine author: use provided value or fall back to config default
+    let author = match author {
+        Some(a) => a,
+        None => config.rfd.default_author.clone().ok_or_else(|| RfdError::InvalidInput {
+            message: "No author provided and no default_author configured.\n\
+                     Either provide --author flag or set default_author in .rfd/config.toml".to_string(),
+        })?,
+    };
 
     // Get next RFD number
     let number = next_rfd_number(&config)?;

@@ -42,6 +42,11 @@ toml = "0.5"
 dirs = "5"
 once_cell = "1.19"
 
+# GitHub integration (async)
+async-trait = "0.1"
+tokio = { version = "1", features = ["rt", "macros"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
 [dev-dependencies]
 # Testing utilities
 assert_cmd = "2"

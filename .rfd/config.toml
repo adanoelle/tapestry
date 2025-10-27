@@ -1,0 +1,35 @@
+# RFD CLI Configuration
+# This file configures the behavior of the RFD CLI tool
+
+[rfd]
+# Directory where RFD documents are stored
+directory = "rfds"
+
+# ID format string (e.g., "{:04d}" for 0001, 0002, etc.)
+id_format = "{:04d}"
+
+# Default template to use
+template = "default"
+
+# Default author for new RFDs (e.g., "Name <email@example.com>")
+# Can be overridden with --author flag
+default_author = "adanoelle <ada@tapestrylabs.org>"
+
+[github]
+# Repository in "owner/repo" format
+repo = "adanoelle/tapestry"
+
+# Auto-create issue when creating RFD (default: false)
+auto_create_issue = false
+
+# Auto-sync status changes to GitHub (default: false)
+auto_sync_status = false
+
+# Label mapping for RFD states
+[github.label_mapping]
+draft = ["rfd:draft"]
+review = ["rfd:review", "needs-review"]
+accepted = ["rfd:accepted"]
+implemented = ["rfd:implemented", "done"]
+rejected = ["rfd:rejected"]
+archived = ["rfd:archived"]

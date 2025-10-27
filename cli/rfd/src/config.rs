@@ -75,6 +75,10 @@ pub struct RfdConfig {
     /// Output configuration section
     #[serde(default)]
     pub output: OutputSection,
+
+    /// GitHub integration configuration section
+    #[serde(default)]
+    pub github: GitHubSection,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,6 +94,10 @@ pub struct RfdSection {
     /// ID format string (e.g., "{:04d}" for 0001, 0002, etc.)
     #[serde(default = "default_id_format")]
     pub id_format: String,
+
+    /// Default author for new RFDs (e.g., "Name <email@example.com>")
+    #[serde(default)]
+    pub default_author: Option<String>,
 }
 
 impl Default for RfdSection {
@@ -98,6 +106,7 @@ impl Default for RfdSection {
             directory: default_directory(),
             template: default_template(),
             id_format: default_id_format(),
+            default_author: None,
         }
     }
 }
@@ -142,6 +151,36 @@ impl Default for OutputSection {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitHubSection {
+    /// Repository in "owner/repo" format (e.g., "adanoelle/tapestry")
+    #[serde(default = "default_github_repo")]
+    pub repo: String,
+
+    /// Auto-create GitHub issue when creating RFD
+    #[serde(default)]
+    pub auto_create_issue: bool,
+
+    /// Auto-sync RFD status changes to GitHub
+    #[serde(default)]
+    pub auto_sync_status: bool,
+
+    /// Label mapping for RFD states
+    #[serde(default)]
+    pub label_mapping: std::collections::HashMap<String, Vec<String>>,
+}
+
+impl Default for GitHubSection {
+    fn default() -> Self {
+        Self {
+            repo: default_github_repo(),
+            auto_create_issue: false,
+            auto_sync_status: false,
+            label_mapping: default_label_mapping(),
+        }
+    }
+}
+
 // Default value functions
 fn default_directory() -> String {
     "rfds".to_string()
@@ -173,6 +212,21 @@ fn default_output_format() -> String {
 
 fn default_color() -> String {
     "auto".to_string()
+}
+
+fn default_github_repo() -> String {
+    "".to_string()
+}
+
+fn default_label_mapping() -> std::collections::HashMap<String, Vec<String>> {
+    let mut map = std::collections::HashMap::new();
+    map.insert("draft".to_string(), vec!["rfd:draft".to_string()]);
+    map.insert("review".to_string(), vec!["rfd:review".to_string()]);
+    map.insert("accepted".to_string(), vec!["rfd:accepted".to_string()]);
+    map.insert("implemented".to_string(), vec!["rfd:implemented".to_string()]);
+    map.insert("rejected".to_string(), vec!["rfd:rejected".to_string()]);
+    map.insert("archived".to_string(), vec!["rfd:archived".to_string()]);
+    map
 }
 
 impl RfdConfig {
