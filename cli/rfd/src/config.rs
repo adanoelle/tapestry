@@ -223,7 +223,10 @@ fn default_label_mapping() -> std::collections::HashMap<String, Vec<String>> {
     map.insert("draft".to_string(), vec!["rfd:draft".to_string()]);
     map.insert("review".to_string(), vec!["rfd:review".to_string()]);
     map.insert("accepted".to_string(), vec!["rfd:accepted".to_string()]);
-    map.insert("implemented".to_string(), vec!["rfd:implemented".to_string()]);
+    map.insert(
+        "implemented".to_string(),
+        vec!["rfd:implemented".to_string()],
+    );
     map.insert("rejected".to_string(), vec!["rfd:rejected".to_string()]);
     map.insert("archived".to_string(), vec!["rfd:archived".to_string()]);
     map
