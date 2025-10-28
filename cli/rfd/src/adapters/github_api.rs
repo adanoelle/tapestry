@@ -19,6 +19,10 @@
 //!
 //! This adapter checks rate limit headers and returns actionable errors.
 
+// GitHub integration (RFD-003) not yet wired up
+#![allow(dead_code)]
+#![allow(clippy::redundant_closure)]
+
 use crate::ports::github::*;
 use async_trait::async_trait;
 use reqwest::{Client, StatusCode};
@@ -28,6 +32,7 @@ use serde_json::json;
 ///
 /// Implements GitHubPort using GitHub's REST API v3.
 /// Requires GITHUB_TOKEN environment variable.
+#[allow(dead_code)] // GitHub integration (RFD-003) not yet wired up
 pub struct GitHubApiAdapter {
     client: Client,
     token: String,
@@ -140,10 +145,13 @@ impl GitHubApiAdapter {
                         if let Some(reset) = response.headers().get("x-ratelimit-reset") {
                             if let Ok(reset_str) = reset.to_str() {
                                 if let Ok(reset_timestamp) = reset_str.parse::<i64>() {
-                                    let reset_time = chrono::DateTime::from_timestamp(reset_timestamp, 0)
-                                        .unwrap_or_else(|| chrono::Utc::now())
-                                        .to_rfc3339();
-                                    return Err(GitHubError::RateLimit { reset_at: reset_time });
+                                    let reset_time =
+                                        chrono::DateTime::from_timestamp(reset_timestamp, 0)
+                                            .unwrap_or_else(|| chrono::Utc::now())
+                                            .to_rfc3339();
+                                    return Err(GitHubError::RateLimit {
+                                        reset_at: reset_time,
+                                    });
                                 }
                             }
                         }
@@ -193,10 +201,7 @@ impl GitHubApiAdapter {
 
 #[async_trait]
 impl GitHubPort for GitHubApiAdapter {
-    async fn create_issue(
-        &self,
-        request: CreateIssueRequest,
-    ) -> Result<GitHubIssue, GitHubError> {
+    async fn create_issue(&self, request: CreateIssueRequest) -> Result<GitHubIssue, GitHubError> {
         let body = json!({
             "title": request.title,
             "body": request.body,
@@ -327,11 +332,7 @@ impl GitHubPort for GitHubApiAdapter {
         })
     }
 
-    async fn add_comment(
-        &self,
-        number: u32,
-        body: String,
-    ) -> Result<GitHubComment, GitHubError> {
+    async fn add_comment(&self, number: u32, body: String) -> Result<GitHubComment, GitHubError> {
         let request_body = json!({ "body": body });
 
         let result = self
@@ -343,11 +344,9 @@ impl GitHubPort for GitHubApiAdapter {
             .await?;
 
         Ok(GitHubComment {
-            id: result["id"]
-                .as_u64()
-                .ok_or_else(|| GitHubError::Parse {
-                    message: "Missing 'id' in response".to_string(),
-                })?,
+            id: result["id"].as_u64().ok_or_else(|| GitHubError::Parse {
+                message: "Missing 'id' in response".to_string(),
+            })?,
             url: result["html_url"]
                 .as_str()
                 .ok_or_else(|| GitHubError::Parse {
@@ -407,22 +406,18 @@ impl GitHubPort for GitHubApiAdapter {
 
         let core = &result["resources"]["core"];
         Ok(RateLimit {
-            limit: core["limit"]
-                .as_u64()
-                .ok_or_else(|| GitHubError::Parse {
-                    message: "Missing 'limit' in rate_limit response".to_string(),
-                })? as u32,
+            limit: core["limit"].as_u64().ok_or_else(|| GitHubError::Parse {
+                message: "Missing 'limit' in rate_limit response".to_string(),
+            })? as u32,
             remaining: core["remaining"]
                 .as_u64()
                 .ok_or_else(|| GitHubError::Parse {
                     message: "Missing 'remaining' in rate_limit response".to_string(),
                 })? as u32,
             reset_at: chrono::DateTime::from_timestamp(
-                core["reset"]
-                    .as_i64()
-                    .ok_or_else(|| GitHubError::Parse {
-                        message: "Missing 'reset' in rate_limit response".to_string(),
-                    })?,
+                core["reset"].as_i64().ok_or_else(|| GitHubError::Parse {
+                    message: "Missing 'reset' in rate_limit response".to_string(),
+                })?,
                 0,
             )
             .ok_or_else(|| GitHubError::Parse {

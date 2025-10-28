@@ -25,6 +25,9 @@
 //! - Tests use mock adapter (no real GitHub API calls)
 //! - Production uses API adapter (real GitHub REST API)
 
+// GitHub integration (RFD-003) not yet wired up
+#![allow(dead_code)]
+
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -34,6 +37,7 @@ use thiserror::Error;
 /// This trait defines all GitHub operations that the RFD tool needs.
 /// Different adapters can implement this trait to provide different
 /// implementations (e.g., REST API, mock for testing).
+#[allow(dead_code)] // GitHub integration (RFD-003) not yet wired up
 #[async_trait]
 pub trait GitHubPort: Send + Sync {
     /// Create a GitHub issue.
@@ -51,10 +55,7 @@ pub trait GitHubPort: Send + Sync {
     /// - `GitHubError::Auth` - Authentication failed
     /// - `GitHubError::RateLimit` - API rate limit exceeded
     /// - `GitHubError::Api` - Other API errors
-    async fn create_issue(
-        &self,
-        request: CreateIssueRequest,
-    ) -> Result<GitHubIssue, GitHubError>;
+    async fn create_issue(&self, request: CreateIssueRequest) -> Result<GitHubIssue, GitHubError>;
 
     /// Get issue details by number.
     ///
@@ -87,11 +88,7 @@ pub trait GitHubPort: Send + Sync {
     ///
     /// - `GitHubError::NotFound` - Issue doesn't exist
     /// - `GitHubError::PermissionDenied` - Can't comment on issue
-    async fn add_comment(
-        &self,
-        number: u32,
-        body: String,
-    ) -> Result<GitHubComment, GitHubError>;
+    async fn add_comment(&self, number: u32, body: String) -> Result<GitHubComment, GitHubError>;
 
     /// Set issue labels (replaces all existing labels).
     ///
@@ -117,11 +114,7 @@ pub trait GitHubPort: Send + Sync {
     ///
     /// - `GitHubError::NotFound` - Issue doesn't exist
     /// - `GitHubError::PermissionDenied` - Can't modify issue
-    async fn update_state(
-        &self,
-        number: u32,
-        state: IssueState,
-    ) -> Result<(), GitHubError>;
+    async fn update_state(&self, number: u32, state: IssueState) -> Result<(), GitHubError>;
 
     /// Check GitHub API rate limit status.
     ///
@@ -268,6 +261,7 @@ pub struct AuthStatus {
 ///
 /// All errors include actionable suggestions for how to fix them.
 /// This makes the tool more agent-friendly and helpful for users.
+#[allow(dead_code)] // GitHub integration (RFD-003) not yet wired up
 #[derive(Debug, Error)]
 pub enum GitHubError {
     /// Authentication failed (missing or invalid token).
@@ -280,7 +274,9 @@ pub enum GitHubError {
     },
 
     /// GitHub API rate limit exceeded.
-    #[error("Rate limit exceeded. Resets at {reset_at}\nSuggestion: Wait or use a different token")]
+    #[error(
+        "Rate limit exceeded. Resets at {reset_at}\nSuggestion: Wait or use a different token"
+    )]
     RateLimit {
         /// When the rate limit resets (ISO 8601)
         reset_at: String,
@@ -340,9 +336,7 @@ pub enum GitHubError {
 /// );
 /// ```
 pub fn extract_issue_number(url: &str) -> Option<u32> {
-    url.split('/')
-        .last()
-        .and_then(|s| s.parse().ok())
+    url.split('/').next_back().and_then(|s| s.parse().ok())
 }
 
 /// Check if a URL is a valid GitHub issue URL.
@@ -376,16 +370,15 @@ mod tests {
             extract_issue_number("https://github.com/org/repo/pull/42"),
             Some(42)
         );
-        assert_eq!(
-            extract_issue_number("not a url"),
-            None
-        );
+        assert_eq!(extract_issue_number("not a url"), None);
     }
 
     #[test]
     fn test_is_github_issue_url() {
         assert!(is_github_issue_url("https://github.com/org/repo/issues/42"));
-        assert!(is_github_issue_url("https://github.com/org/repo/issues/123"));
+        assert!(is_github_issue_url(
+            "https://github.com/org/repo/issues/123"
+        ));
         assert!(!is_github_issue_url("https://example.com"));
         assert!(!is_github_issue_url("https://github.com/org/repo"));
     }
