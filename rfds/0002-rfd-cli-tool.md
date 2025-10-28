@@ -155,7 +155,7 @@ The RFD CLI has been successfully implemented with all planned features:
 
 ### Phase 1: MVP ✅
 
-- [x] CLI structure with clap (create, list, show, status, update, validate)
+- [x] CLI structure with clap (create, list, show, status, update, validate, search)
 - [x] Template rendering with minijinja
 - [x] YAML front matter parsing
 - [x] File I/O and directory management
@@ -175,6 +175,7 @@ The RFD CLI has been successfully implemented with all planned features:
 
 - [x] Comprehensive testing (61 tests passing)
 - [x] Documentation and examples
+- [x] Search functionality with multiple scopes (content, metadata, tags)
 - [x] Multiple filter options (status, author, limit)
 
 ### Current Capabilities
