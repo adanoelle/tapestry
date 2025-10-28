@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **RFD-003: GitHub Integration for RFD CLI** - Complete design document for GitHub integration
+  - Hexagonal architecture with port/adapter pattern
+  - REST API-based integration (not gh CLI)
+  - 4-phase implementation plan
+  - Mock adapter for testing
+
+- **RFD-004: RFD Search Command** - Documentation for implemented search functionality
+  - Field-specific search (title, content, tags, metadata)
+  - Case sensitivity and filter combination
+  - Agent-friendly JSON output
+
+### Changed
+
+- Updated RFD-002 to reflect search implementation status
+- Added dead code annotations to GitHub integration modules pending implementation
+
 ## [0.3.0] - 2025-10-26
 
 ### Added

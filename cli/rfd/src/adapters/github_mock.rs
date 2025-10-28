@@ -25,6 +25,9 @@
 //! # });
 //! ```
 
+// GitHub integration (RFD-003) not yet wired up
+#![allow(dead_code)]
+
 use crate::ports::github::*;
 use async_trait::async_trait;
 use std::collections::HashMap;
@@ -34,6 +37,7 @@ use std::sync::{Arc, Mutex};
 ///
 /// Simulates GitHub operations without making real API calls.
 /// Issues are stored in memory and issue numbers auto-increment.
+#[allow(dead_code)] // GitHub integration (RFD-003) not yet wired up
 #[derive(Clone)]
 pub struct MockGitHubAdapter {
     /// In-memory storage of issues (issue_number -> issue)
@@ -157,7 +161,10 @@ impl MockGitHubAdapter {
                 GitHubError::RateLimit { reset_at } => GitHubError::RateLimit {
                     reset_at: reset_at.clone(),
                 },
-                GitHubError::Auth { message, suggestion } => GitHubError::Auth {
+                GitHubError::Auth {
+                    message,
+                    suggestion,
+                } => GitHubError::Auth {
                     message: message.clone(),
                     suggestion: suggestion.clone(),
                 },
@@ -182,10 +189,7 @@ impl Default for MockGitHubAdapter {
 
 #[async_trait]
 impl GitHubPort for MockGitHubAdapter {
-    async fn create_issue(
-        &self,
-        request: CreateIssueRequest,
-    ) -> Result<GitHubIssue, GitHubError> {
+    async fn create_issue(&self, request: CreateIssueRequest) -> Result<GitHubIssue, GitHubError> {
         self.check_error()?;
 
         // Get next issue number
@@ -197,7 +201,10 @@ impl GitHubPort for MockGitHubAdapter {
         // Create issue
         let issue = GitHubIssue {
             number,
-            url: format!("https://api.github.com/repos/{}/issues/{}", self.repo, number),
+            url: format!(
+                "https://api.github.com/repos/{}/issues/{}",
+                self.repo, number
+            ),
             html_url: format!("https://github.com/{}/issues/{}", self.repo, number),
             state: IssueState::Open,
             title: request.title,
@@ -226,11 +233,7 @@ impl GitHubPort for MockGitHubAdapter {
             })
     }
 
-    async fn add_comment(
-        &self,
-        number: u32,
-        body: String,
-    ) -> Result<GitHubComment, GitHubError> {
+    async fn add_comment(&self, number: u32, body: String) -> Result<GitHubComment, GitHubError> {
         self.check_error()?;
 
         // Check issue exists
@@ -253,9 +256,11 @@ impl GitHubPort for MockGitHubAdapter {
         self.check_error()?;
 
         let mut issues = self.issues.lock().unwrap();
-        let issue = issues.get_mut(&number).ok_or_else(|| GitHubError::NotFound {
-            resource: format!("Issue #{}", number),
-        })?;
+        let issue = issues
+            .get_mut(&number)
+            .ok_or_else(|| GitHubError::NotFound {
+                resource: format!("Issue #{}", number),
+            })?;
 
         issue.labels = labels;
         issue.updated_at = chrono::Utc::now().to_rfc3339();
@@ -267,9 +272,11 @@ impl GitHubPort for MockGitHubAdapter {
         self.check_error()?;
 
         let mut issues = self.issues.lock().unwrap();
-        let issue = issues.get_mut(&number).ok_or_else(|| GitHubError::NotFound {
-            resource: format!("Issue #{}", number),
-        })?;
+        let issue = issues
+            .get_mut(&number)
+            .ok_or_else(|| GitHubError::NotFound {
+                resource: format!("Issue #{}", number),
+            })?;
 
         issue.state = state;
         issue.updated_at = chrono::Utc::now().to_rfc3339();
